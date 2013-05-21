@@ -16,21 +16,24 @@ http://fcgrx.com
 INITIAL CHALLENGES:
 ----------------------------------------
 
-Built-in and unknown addons:
+Nested brackets:
+
+	{encode="{webmaster_email}" title="Contact Us"}
+	{template_edit_date format="{DATE_ATOM}"}
+	{exp:channel:entries channel="blog" {if embed:entry_id}entry_id="{embed:entry_id}"{/if}}
+	{/exp:channel:entries}
+
+Built-in and other addons:
 
 	{exp:channel:entries channel="news" search:my_field="foo"}
 	{/exp:channel:entries}
 	{exp:my_plugin my_param="foo"}
 	{/exp:my_plugin}
 
-Nested brackets:
-
-	{encode="{webmaster_email}" title="Contact Us"}
-
 Three uses of switch:
 
 	{exp:search:search_results switch="resultRowOne|resultRowTwo"}
-	\t<tr class="{switch}">
+		<tr class="{switch}">
 	{switch="one|two"}
 	{switch}
 
@@ -43,6 +46,12 @@ Various kinds of tags with required parameters:
 	{preload_replace:foo="foo"}
 	{preload_replace:foo='foo bar'}
 	{preload_replace:foo="foo bar"}
+
+Global variable with and without optional parameters:
+
+	{current_time}
+	{current_time format="%Y %m %d %H:%i:%s"}
+	{if gmt_entry_date == current_time}
 
 Various valid uses of "path":
 
@@ -76,6 +85,57 @@ Comment tags:
 		multi
 		line
 	--}
+	{!-- <?php echo 'COMM\'ENT'; ?> --}
+	{!-- <script> alert('comment');</script> --}
+	/* NOT A COMMENT */
+	// NOT A COMMENT
+	{embed=site/.img url="{publication-image}" class='img{!-- slide_under--}'}
+
+Nesting EE tags inside HTML tags:
+
+	<a {!-- COMMENT --} href="{path="channel/archives"}">
+		<img src="foo" alt="{site_name}" />
+	</a>
+
+Nesting EE tags inside PHP:
+
+	 <?php echo 'hello {username}'; ?>
+
+	<?php
+	/* COMMENT */ {if count == 2}{author}{/if}
+	{!-- COMMENT --} echo "{site_name}";
+	if ("{site_name}" == "foo") echo "valid php";
+	{!-- echo "commented out php"; --}
+	echo "valid php{!-- WITH A COMMENT --}";
+	{exp:channel:entries}
+	{/exp:channel:entries}
+	?>
+
+	<?php {!-- COMMENT --} echo "{site_name}"; ?>
+
+Nesting EE tags inside JavaScript:
+
+	<script> alert('before{!-- comment --}after'); </script>
+	<script> /* </script> */ </script>
+	<script>
+		/* JS COMMENT */
+		alert('not a comment');
+		alert('not {!-- a comment --}');
+		{!-- alert('comment'); --}
+		$('#field').add{!-- COMMENT --}Class('foo');
+		{if logged_in}
+		   $('#field').addClass('loggedinto{site_name}');
+		{/if}
+		<?php echo 'PHP INSIDE SCRIPT '; /* COMMENT */ ?>
+	</script>
+
+Nesting EE tags inside jQuery (and highlighting jQuery):
+
+	<script>
+		{if logged_in}
+			$('#field').addClass('f{!-- COMMENT --}oo');
+		{/if}
+	</script>
 
 EE variables, punctuation, operators:
 
@@ -95,7 +155,7 @@ EE variables, punctuation, operators:
 		member_id={member_id}
 	{/if}
 
-	{if      name == "bozo"}
+	{if	  name == "bozo"}
 	{if:else name=="bozo"}
 	{/if}
 
@@ -106,7 +166,6 @@ EE core addons:
 	{exp:channel:category_archive channel="default_site" style="linear"}
 	{exp:channel:category_heading channel=""}
 	{exp:channel:entries channel="bands" limit="10" sort="desc" start_on="" show_future_entries="yes" dynamic_start="yes" track_views="one" paginate="bottom" orderby="date" sort="desc" search:my_field="foo" title="Spring 2013" url-title="winter-2013" disable="categories|custom_fields|member_data|pagination"}
-	{exp:channel:entry_form}
 	{exp:channel:info channel="news"}
 	{exp:channel:month_links}
 	{exp:channel:next_entry}
@@ -351,6 +410,7 @@ User-defined fields and conditionals:
 	{if embed:your_dog_name == "Shadow"}
 	{embed:_your_dog_name}
 	{your_snippet}
+	{embed=site/index my_field="foo"}
 
 Deprecated conditionals:
 
@@ -367,10 +427,15 @@ Deprecated tags:
 	{/exp:channel:entry_form}
 	{display_custom_fields}
 
+Invalid tags (should not be highlighted as EE tags):
+
+	{preload_replac:variable_name="replacement"}
+	{preload_reace:variable_name="replacement"}
+	{ notvalid}
+
 Variable pairs:
 
 	{add_to_cart_button}Add to Cart{/add_to_cart_button}
-	{add_to_cart_button}{/add_to_cart_button}
 	{articles}{/articles}
 	{audio} Listen to the audio! {/audio}
 	{author} on {entry_date format="%m/%d"}
@@ -378,26 +443,18 @@ Variable pairs:
 	{buy_now_button}{/buy_now_button}
 	{calendar_heading}{/calendar_heading}
 	{calendar_rows}{/calendar_rows}
-	{categories backspace="7"} {category_name} {/categories}
-	{categories} {category_name} {/categories}
-	{categories}{/categories}
-	{category_description}{/categories}
+	{categories backspace="7"} {category_name} {category_description} {/categories}
 	{category_menu} Categories {select_options}  {/category_menu}
-	{category_menu}{/category_menu}
 	{custom_fields}{/custom_fields}
 	{date_footer display="daily"} That's all from today! {/date_footer}
-	{date_footer}{/date_footer}
 	{date_heading display="weekly"}Week of {week_date format="%Y %m %d"}{/date_heading}
 	{date_heading} {entry_date format="%Y %m %d"} {/date_heading}
-	{date_heading}{/date_heading}
 	{embed="site/export" the_id="{entry_id}"}
 	{entries}{/entries}
 	{entry_titles} {title} {/entry_titles}
-	{entry_titles}{/entry_titles}
 	{field name="body" format="xhtml"} {text} {/field}
 	{field name="body_image" format="none"} {images} {/images} {/field}
 	{field name="extended" format="xhtml"} {text} {/field}
-	{field_errors}{/field_errors}
 	{field_errors}{error}{/field_errors}
 	{field}{/field}
 	{files match="movie|files"} View the presentation. {/files}
@@ -572,6 +629,16 @@ Moblog tags (not valid in EE templates, probably should not be highlighted):
 	{category}3,News,7{/category}
 	{file_archive}yes{/file_archive}
 	{entry_title}My Unique Title{/entry_title}
+
+Highlighting of global variables w/ parameters:
+
+	{path=x}					is valid
+	{path=blog}					is valid
+	{path=blog }				is valid
+	{if ("{path=}" == "foo")}	is valid
+	{if (path=}					is not
+	{if path=}					is not
+	{ path=}					is not
 
 ----------------------------------------
 All ExpressionEngine tags and keywords:
@@ -1375,7 +1442,7 @@ status="draft"
 {year_short}
 
 {year_heading}
-    <p>{year}</p>
+	<p>{year}</p>
 {/year_heading}
 
 <!DOCTYPE html>
@@ -1467,42 +1534,42 @@ disable="categories|member_data"
 {exp:channel:calendar switch="calendarToday|calendarCell"}
 
 <table class="calendarBG" border="0" cellpadding="6" cellspacing="1" summary="My Calendar">
-    <tr class="calendarHeader">
+	<tr class="calendarHeader">
 	<th>
-	    <div class="calendarMonthLinks"><a href="{previous_path="channel/index"}">&lt;&lt;</a>
-	    </div>
+		<div class="calendarMonthLinks"><a href="{previous_path="channel/index"}">&lt;&lt;</a>
+		</div>
 	</th>
 	<th colspan="5">
-	    {date format="%F %Y"}
-	    {date }
-	    {date}
+		{date format="%F %Y"}
+		{date }
+		{date}
 	</th>
 	<th>
-	    <div class="calendarMonthLinks">
+		<div class="calendarMonthLinks">
 		<a class="calendarMonthLinks" href="{next_path="channel/index"}">&gt;&gt;</a>
-	    </div>
+		</div>
 	</th>
-    </tr>
-    <tr>
-    {calendar_heading}
-    <td class="calendarDayHeading">{lang:weekday_abrev}</td>
-    {/calendar_heading}
-    </tr>
-    {calendar_rows}
+	</tr>
+	<tr>
+	{calendar_heading}
+	<td class="calendarDayHeading">{lang:weekday_abrev}</td>
+	{/calendar_heading}
+	</tr>
+	{calendar_rows}
 	{row_start}<tr>{/row_start}
 	{if entries}
-	    <td class="{switch}" align="center"><a href="{day_path="channel/index"}">{day_number}</a>
-	    </td>
+		<td class="{switch}" align="center"><a href="{day_path="channel/index"}">{day_number}</a>
+		</td>
 	{/if}
 	{if not_entries}
-	    <td class="{switch}" align="center">{day_number}</td>
+		<td class="{switch}" align="center">{day_number}</td>
 	{/if}
 	{if blank}
-	    <td class="calendarBlank">{day_number}</td>
+		<td class="calendarBlank">{day_number}</td>
 	{/if}
 	{row_end}</tr>{/row_end}
-    {/calendar_rows}
-    </table>
+	{/calendar_rows}
+	</table>
 {/exp:channel:calendar}
 
 {exp:channel:calendar switch="calendarToday|calendarCell" channel="default_site"
@@ -1512,45 +1579,45 @@ show_future_entries="yes"
 start_day="sunday"
 }
 <table class="calendarBG" border="0" cellpadding="6" cellspacing="1" summary="My Calendar" width="90%">
-    <tr class="calendarHeader">
+	<tr class="calendarHeader">
 	<th>
-	    <div class="calendarMonthLinks">
+		<div class="calendarMonthLinks">
 		<a href="{previous_path="channel/cal"}">&lt;&lt;</a>
-	    </div>
+		</div>
 	</th>
 	<th colspan="5">{date format="%F %Y"}</th>
 	<th>
-	    <div class="calendarMonthLinks">
+		<div class="calendarMonthLinks">
 		<a class="calendarMonthLinks" href="{next_path="channel/cal"}">&gt;&gt;</a>
-	    </div>
+		</div>
 	</th>
-    </tr>
-    <tr>
-    {calendar_heading}
+	</tr>
+	<tr>
+	{calendar_heading}
 	<td class="calendarDayHeading">{lang:weekday_abrev}</td>
-    {/calendar_heading}
-    </tr>
-    {calendar_rows}
+	{/calendar_heading}
+	</tr>
+	{calendar_rows}
 	{row_start}<tr>{/row_start}
 	{if entries}
-	    <td class="{switch}" align="center">
+		<td class="{switch}" align="center">
 		<a href="{day_path="channel/index"}">{day_number}</a>
 		{entries}
 		<div>
-		    <a href="{title_permalink="channel/index"}">{title}</a>
-		    <a href="{profile_path="member/profile"}">{author}</a>
+			<a href="{title_permalink="channel/index"}">{title}</a>
+			<a href="{profile_path="member/profile"}">{author}</a>
 		</div>
 		{/entries}
-	    </td>
+		</td>
 	{/if}
 	{if not_entries}
-	    <td class="{switch}" align="center">{day_number}</td>
+		<td class="{switch}" align="center">{day_number}</td>
 	{/if}
 	{if blank}
-	    <td class="calendarBlank">{day_number}</td>
+		<td class="calendarBlank">{day_number}</td>
 	{/if}
 	{row_end}</tr>{/row_end}
-    {/calendar_rows}
+	{/calendar_rows}
 </table>
 {/exp:channel:calendar}
 
@@ -1625,26 +1692,26 @@ start_day="sunday"
 <a href="http://example.com/index.php/channel/archives/ice_cream/">permalink</a>
 
 {calendar_heading}
-    <td class="calendarDayHeading">{lang:weekday_abrev}</td>
+	<td class="calendarDayHeading">{lang:weekday_abrev}</td>
 {/calendar_heading}
 
 {calendar_rows}
-    {row_start}<tr>{/row_start}
+	{row_start}<tr>{/row_start}
 	<td class="{switch}" align="center">
-	    <a href="{day_path="channel/index"}">{day_number}</a>
-	    {entries}
-	    <div>
+		<a href="{day_path="channel/index"}">{day_number}</a>
+		{entries}
+		<div>
 		<a href="{title_permalink="channel/index"}">{title}</a> <a href="{profile_path="member/profile"}">{author}</a>
-	    </div>
-	    {/entries}
+		</div>
+		{/entries}
 	</td>
-    {row_end}</tr>{/row_end}
+	{row_end}</tr>{/row_end}
 {/calendar_rows}
 
 {entries}
-    <div>
+	<div>
 	<a href="{title_permalink="channel/index"}">{title}</a> <a href="{profile_path="member/profile"}">{author}</a>
-    </div>
+	</div>
 {/entries}
 
 {row_end}</tr>{/row_end}
@@ -1652,14 +1719,14 @@ start_day="sunday"
 {row_start}<tr>{/row_start}
 
 {if captcha}
-    <p>Please enter the word you see in the image below:</p>
-    <p>{captcha}<br /> <input type="text" name="captcha" value="{captcha_word}" size="20" maxlength="20" style="width:140px;" /></p>
+	<p>Please enter the word you see in the image below:</p>
+	<p>{captcha}<br /> <input type="text" name="captcha" value="{captcha_word}" size="20" maxlength="20" style="width:140px;" /></p>
 {/if}
 
 {if captcha}
-    <p>Please enter the word you see in the image below:</p>
-    <p>{captcha}<br />
-    <input type="text" name="captcha" value="" size="20" maxlength="20" style="width:140px;" />
+	<p>Please enter the word you see in the image below:</p>
+	<p>{captcha}<br />
+	<input type="text" name="captcha" value="" size="20" maxlength="20" style="width:140px;" />
  "> <!-- note: needed to insert extra closing quote here due to bug in HTML highlighting -->
 
 
@@ -1667,12 +1734,12 @@ start_day="sunday"
 {/if}
 
 {exp:channel:categories}
-    {category_name}
+	{category_name}
 {/exp:channel:categories}
 
 {exp:channel:categories backspace="5"}
-    <a href="{path="channel/index"}">{category_name}</a>
-    {if category_description}{category_description}{/if}
+	<a href="{path="channel/index"}">{category_name}</a>
+	{if category_description}{category_description}{/if}
 {/exp:channel:categories}
 
 {exp:channel:categories style="linear" backspace="5"
@@ -1690,7 +1757,7 @@ show_future_entries="yes"
 status="not submitted|processing|closed"
 style="nested"
 }
-    {category_name}<br>
+	{category_name}<br>
 {/exp:channel:categories}
 
 
@@ -1722,36 +1789,36 @@ style="nested"
 
 <a href="{path="news/index"}"{if active} class="active"{/if}>{category_name}</a>
 
-<form name="catmenu" action=''>     '>
-    <select name="selcat" onchange="location=document.catmenu.selcat.options[document.catmenu.selcat.selectedIndex].value;">
+<form name="catmenu" action=''>	 '>
+	<select name="selcat" onchange="location=document.catmenu.selcat.options[document.catmenu.selcat.selectedIndex].value;">
 	<option value=''>
 
 	'> <!-- NOTE: HAD TO FIX THIS -->
 		--Select Category--</option>
 	{exp:channel:categories channel="yourchannel" style="linear"}
-	    <option value="{path="channel"}">{category_name}</option>
+		<option value="{path="channel"}">{category_name}</option>
 	{/exp:channel:categories}
-    </select>
+	</select>
 </form>
 
 {exp:channel:categories channel="news" style="linear" backspace="7"}
-    <a href="{path="news/entry"}">{category_name}</a><br />
+	<a href="{path="news/entry"}">{category_name}</a><br />
 {/exp:channel:categories}
 
 {exp:channel:categories channel="politics" style="nested"}
-    <a href="{path="SITE_INDEX"}">{category_name}</a>
+	<a href="{path="SITE_INDEX"}">{category_name}</a>
 {/exp:channel:categories}
 
 {exp:channel:category_archive channel="default_site" style="linear"}
-    {categories}
+	{categories}
 	<h3>{category_name}</h3>
 	{if category_description}
-	    <p>{category_description}</p>
+		<p>{category_description}</p>
 	{/if}
-    {/categories}
-    {entry_titles}
+	{/categories}
+	{entry_titles}
 	<a href="{path="SITE_INDEX"}">{title}</a><br />
-    {/entry_titles}
+	{/entry_titles}
 {/exp:channel:category_archive}
 
 <h3>Category one</h3>
@@ -1797,12 +1864,12 @@ show_future_entries="yes"
 sort="desc"
 status="not submitted|processing|closed"
 }
-    {categories}
+	{categories}
 	<h3>{category_name}</h3>
-    {/categories}
-    {entry_titles}
+	{/categories}
+	{entry_titles}
 	<a href="{path="SITE_INDEX"}">{title}</a><br />
-    {/entry_titles}
+	{/entry_titles}
 {/exp:channel:category_archive}
 
 <h3>Category one</h3>
@@ -1822,11 +1889,11 @@ status="not submitted|processing|closed"
 {if active} This category is active {/if}
 
 {categories}
-    <p>{category_description}</p>
+	<p>{category_description}</p>
 {/categories}
 
 {categories}
-    {if category_description}{category_description}{/if}
+	{if category_description}{category_description}{/if}
 {/categories}
 
 {category_id}
@@ -1836,13 +1903,13 @@ status="not submitted|processing|closed"
 {category_image}
 
 {categories}
-    <h3>{category_name}</h3>
+	<h3>{category_name}</h3>
 {/categories}
 
 {category_url_title}
 
 {categories}
-    <a href="{path="site/categories"}">{category_name}</a>
+	<a href="{path="site/categories"}">{category_name}</a>
 {/categories}
 
 <a href="{path="site/categories"}">{category_name}</a>
@@ -1854,7 +1921,7 @@ status="not submitted|processing|closed"
 {entry_date format="%Y %m %d"}
 
 {entry_titles}
-    <a href="{entry_id_path="site/index"}">{title}</a>
+	<a href="{entry_id_path="site/index"}">{title}</a>
 {/entry_titles}
 
 <a href="{entry_id_path="site/index"}">{title}</a>
@@ -1874,10 +1941,10 @@ disable="category_fields"
 relaxed_categories="yes"
 channel="news"
 }
-    <h1>{category_name}</h1>
-    {if category_description}
+	<h1>{category_name}</h1>
+	{if category_description}
 	<p>{category_description}</p>
-    {/if}
+	{/if}
 {/exp:channel:category_heading}
 
 {category_description}
@@ -1896,7 +1963,7 @@ channel="news"
 
 {class} {extended_description} {category_name_fr} etc..
 
-{moderators backspace="1"}     <a href="{path:member_profile}">{name}</a>, {/moderators}
+{moderators backspace="1"}	 <a href="{path:member_profile}">{name}</a>, {/moderators}
 
 {moderators backspace="1"}<a href="{path:member_profile}">{name}</a>,{/moderators}
 
@@ -1904,14 +1971,14 @@ channel="news"
 author_id="CURRENT_USER"
 author_id="NOT_CURRENT_USER"
 }
-    <h2>{title}</h2>
-    {body}
+	<h2>{title}</h2>
+	{body}
 {/exp:channel:entries}
 
 {exp:channel:entries backspace="7"
 cache="yes" refresh="60"
 cat_limit="30"
-}    {title}<br /> {/exp:channel:entries}
+}	{title}<br /> {/exp:channel:entries}
 
 {exp:channel:entries limit="10" cat_limit="100"
 category="3&7&8"
@@ -2216,11 +2283,11 @@ month="12"}
 {week_date format="%Y %m %d"}
 
 {if summary != ""}
-    The summary is not empty!
+	The summary is not empty!
 {/if}
 
 {if summary}
-    The summary is not empty!
+	The summary is not empty!
 {/if}
 
 {if allow_comments} content {/if}
@@ -2362,10 +2429,10 @@ Science News
 
 {channel_url}
 
-{!--      Your comments will go in here.
-You can even span it across multiple lines.     --}
+{!--	  Your comments will go in here.
+You can even span it across multiple lines.	 --}
 
-{!--    Once the channel is set up and the old data inserted, use this below.
+{!--	Once the channel is set up and the old data inserted, use this below.
 
 {exp:channel:entries channel="recipies"}
 		{title}
@@ -2377,11 +2444,11 @@ You can even span it across multiple lines.     --}
 {if screen_name == "John Smith (Owner)"}
 
 {if username == "Joe" OR username == "Bob"}
-    <h1>Hey, Joe or Bob!</h1>
+	<h1>Hey, Joe or Bob!</h1>
 {/if}
 
 {if username != "Joe" AND username != "Bob"}
-    <h1>Hey, people who are neither Joe nor Bob!</h1>
+	<h1>Hey, people who are neither Joe nor Bob!</h1>
 {/if}
 
 {if:elseif}
@@ -2560,25 +2627,25 @@ etc..
 {width}
 
 {poll_options}
-    {item}<br />
+	{item}<br />
 {/poll_options}
 
 {poll_options markup="ul"}
 
 <ul>
-    <li>Green</li>
-    <li>Blue</li>
-    <li>Orange</li>
+	<li>Green</li>
+	<li>Blue</li>
+	<li>Orange</li>
 </ul>
 
 {poll_options backspace="7"}
-    {item}<br />
+	{item}<br />
 {/poll_options}
 
 <ul>
-    <li>Green</li><br />
-    <li>Blue</li><br />
-    <li>Orange</li><br />
+	<li>Green</li><br />
+	<li>Blue</li><br />
+	<li>Orange</li><br />
 </ul>
 
 {age}
@@ -2610,22 +2677,22 @@ ee()->extensions->call("safecracker_submit_entry_end", $this);
 {exp:channel:entries  dynamic_parameters="orderby|limit|sort"}
 
 <form method="post" action="{path="template_group/template_name"}">
-    <select name="orderby">
+	<select name="orderby">
 	<option value="date">Sort By:</option>
 	<option value="date">Date</option>
 	<option value="title">Title</option> <option value="comment_total">Most Comments</option>
-    </select>
-    <select name="sort">
+	</select>
+	<select name="sort">
 	<option value="asc">Order In:</option>
 	<option value="asc">Ascending</option>
 	<option value="desc">Descending</option>
-    </select>
-    <select name="limit">
+	</select>
+	<select name="limit">
 	<option value="10">Result Limit:</option>
 	<option value="10">10</option>
 	<option value="20">20</option>
 	<option value="30">30</option>
-    </select>
+	</select>
 
 <input type="submit" value="Go!" />
 </form>
@@ -2728,7 +2795,7 @@ include_jquery="no"
 	{/if}
 
 	{if file}
-	    {file}
+		{file}
 	{/if}
 
 	{/custom_fields}
@@ -2826,7 +2893,7 @@ include_jquery="no"
 {/if}
 
 {if file}
-    {file}
+	{file}
 {/if}
 {/custom_fields}
 
@@ -2859,7 +2926,7 @@ include_jquery="no"
 {preview} <h2>{title}</h2>  {body}  <div class="more">{extended}</div>  {/preview}
 
 {exp:channel:next_entry}
-    <p>Next entry: <a href="{path="site/comments"}">{title}</a></p>
+	<p>Next entry: <a href="{path="site/comments"}">{title}</a></p>
 {/exp:channel:next_entry}
 
 {exp:channel:prev_entry category="2"
@@ -2882,7 +2949,7 @@ status="draft|reviewed|published"
 status="not submitted|processing|closed"
 url_title="{segment_4}"
 }
-    <p>Previous entry: <a href="{path="site/comments"}">{title}</a></p>
+	<p>Previous entry: <a href="{path="site/comments"}">{title}</a></p>
 {/exp:channel:prev_entry}
 
 {channel}
@@ -2922,9 +2989,9 @@ url_title="{segment_4}"
 {url_title}
 
 {exp:channel:entries channel="news" limit="1" track_views="one"}
-    <h3>{title}</h3>
-    {body}
-    <div class="date">Posted on {entry_date format="%M %d, %Y"}</div>
+	<h3>{title}</h3>
+	{body}
+	<div class="date">Posted on {entry_date format="%M %d, %Y"}</div>
 {/exp:channel:entries}
 
 {view_count_one}
@@ -2933,11 +3000,11 @@ url_title="{segment_4}"
 {view_count_four}
 
 {exp:channel:entries channel="news" limit="15"}
-    <h3>{title}</h3>
-    {body}
+	<h3>{title}</h3>
+	{body}
 
 <div class="date">Posted on {entry_date format="%M %d, %Y"}</div>
-    This entry has been viewed {view_count_one} times.
+	This entry has been viewed {view_count_one} times.
 {/exp:channel:entries}
 
 {exp:safecracker channel="contact_form" return="contact/thanks" }
@@ -2949,48 +3016,48 @@ url_title="{segment_4}"
 {exp:safecracker channel="channel_name" return="channel_name/edit/ENTRY_ID" entry_id="{segment_3}"}
 
 <label for="title">Title</label>
-    <input type="text" name="title" id="title" value="{title}" size="50" maxlength="100" onkeyup="liveUrlTitle();">
+	<input type="text" name="title" id="title" value="{title}" size="50" maxlength="100" onkeyup="liveUrlTitle();">
 
 <label for="url_title">URL Title</label>
-    <input type="text" name="url_title" id="url_title" value="{url_title}" maxlength="75" size="50">
+	<input type="text" name="url_title" id="url_title" value="{url_title}" maxlength="75" size="50">
 
 <select name="my_field_name" id="my_field_name">
-	    {options:my_field_name}
+		{options:my_field_name}
 		<option value="{option_value}"{selected}>{option_name}</option>
-	    {/options:my_field_name}
-    </select>
+		{/options:my_field_name}
+	</select>
 
 {status_menu}
 	<label for="status">Status</label>
 	<select name="status" id="status">
 		{select_options}
 	</select>
-    {/status_menu}
+	{/status_menu}
 
 <label for="entry_date">Date</label>
-    <input type="text" name="entry_date" id="entry_date" value="{entry_date}" maxlength="23" size="25">
+	<input type="text" name="entry_date" id="entry_date" value="{entry_date}" maxlength="23" size="25">
 
 <label for="expiration_date">Expiration Date</label>
-    <input type="text" name="expiration_date" id="expiration_date" value="{expiration_date}" maxlength="23" size="25">
+	<input type="text" name="expiration_date" id="expiration_date" value="{expiration_date}" maxlength="23" size="25">
 
 <label for="comment_expiration_date">Comment Expiration Date</label>
-    <input type="text" name="comment_expiration_date" id="comment_expiration_date" value="{comment_expiration_date}" maxlength="23" size="25">
+	<input type="text" name="comment_expiration_date" id="comment_expiration_date" value="{comment_expiration_date}" maxlength="23" size="25">
 
 <label class="checkbox"><input type="checkbox" name="sticky" value="y"  {sticky}> Make Entry Sticky</label>
-    <label class="checkbox"><input type="checkbox" name="allow_comments" value="y" {allow_comments}> Allow Comments</label>
+	<label class="checkbox"><input type="checkbox" name="allow_comments" value="y" {allow_comments}> Allow Comments</label>
 
 {category_menu}
 	<label for="categories">Categories</label>
 	<select name="category[]" id="categories" size="4" multiple="multiple">
 		{select_options}
 	</select>
-    {/category_menu}
+	{/category_menu}
 
 {if captcha}
 	<label for="captcha">Please enter the word you see in the image below:</label>
 	{captcha}
 	<input type="text" name="captcha" value="{captcha_word}" maxlength="20">
-    {/if}
+	{/if}
 
 <input type="submit" name="submit" value="Submit">
 {/exp:safecracker}
@@ -3147,9 +3214,9 @@ uncategorized_entries="no"
 
 Local News<br />	  Health News<br />  Science News<br />
 
-{categories backspace="7"}    {category_name}<br /> {/categories}
+{categories backspace="7"}	{category_name}<br /> {/categories}
 
-Local News<br />	     Health News<br />	Science News
+Local News<br />		 Health News<br />	Science News
 
 {category_description}
 
@@ -3248,21 +3315,21 @@ Local News<br />	     Health News<br />	Science News
 $config["use_forum_url"] = "y";
 ?>
 
-{if in_forum}     <div class="itempadbig">     <select name="theme_switcher" class="select" onchange="if (this.value != "") location.href=this.value">     <option value="">">
+{if in_forum}	 <div class="itempadbig">	 <select name="theme_switcher" class="select" onchange="if (this.value != "") location.href=this.value">	 <option value="">">
 
-{lang:select_theme}</option>     {include:theme_option_list}     </select>     </div>     {/if}
+{lang:select_theme}</option>	 {include:theme_option_list}	 </select>	 </div>	 {/if}
 
 <div class="tablePostInfo">     {lang:posted_on} {last_reply format="%m-%d-%Y %h:%i %A"}<br />     {lang:posted_by} <a href="{path:reply_member_profile}">{reply_author}</a> </div>
 
 <div class="tablePostInfo">     {if is_topic}{lang:posted_on} {last_reply format="%m-%d-%Y %h:%i %A"}<br />{/if}     {if is_post}<a href="{path:post_link}">{lang:posted_on} {last_reply format="%m-%d-%Y %h:%i %A"}</a><br />{/if}     {lang:posted_by} <a href="{path:reply_member_profile}">{reply_author}</a> </div>
 
-{if is_topic}     {if can_change_status}&nbsp;&nbsp;<span class="smallLinks">[ <a href="{path:change_status}">{lang:change_status}</a> ]</span>{/if}     {/if}     {if can_ban}&nbsp;&nbsp;<span class="smallLinks">[ <a href="{path:ban_member}">{lang:ban_member}</a> ]{/if}     &nbsp;
+{if is_topic}     {if can_change_status}&nbsp;&nbsp;<span class="smallLinks">[ <a href="{path:change_status}">{lang:change_status}</a> ]</span>{/if}	 {/if}	 {if can_ban}&nbsp;&nbsp;<span class="smallLinks">[ <a href="{path:ban_member}">{lang:ban_member}</a> ]{/if}	 &nbsp;
 
-{if is_topic}     {if can_change_status}&nbsp;&nbsp;<span class="smallLinks">[ <a href="{path:change_status}">{lang:change_status}</a> ]</span>{/if}     {/if}     {if can_ban}&nbsp;&nbsp;<span class="smallLinks">[ <a href="{path:ban_member}">{lang:ban_member}</a> ]{/if}     {if is_post}&nbsp;&nbsp;<span class="smallLinks">[ <a name="{post_id}" href="{path:post_link}" title="{lang:post_permalink}"># {post_number}</a> ]</span>{/if}     &nbsp;
+{if is_topic}     {if can_change_status}&nbsp;&nbsp;<span class="smallLinks">[ <a href="{path:change_status}">{lang:change_status}</a> ]</span>{/if}	 {/if}	 {if can_ban}&nbsp;&nbsp;<span class="smallLinks">[ <a href="{path:ban_member}">{lang:ban_member}</a> ]{/if}	 {if is_post}&nbsp;&nbsp;<span class="smallLinks">[ <a name="{post_id}" href="{path:post_link}" title="{lang:post_permalink}"># {post_number}</a> ]</span>{/if}	 &nbsp;
 
 <td class="tableCellOne"><div class="itempadbig"><input type="submit" name="submit" class="submit" value="{lang:split_thread}" /></div></td>
 
-<td class="tableCellOne"><div class="itempadbig">     {if previous_page}     <input type="submit" name="previous_page" class="submit" value="‹‹ {lang:previous}" />     {/if}           <input type="submit" name="submit" class="submit" value="{lang:split_thread}" />           {if next_page}     <input type="submit" name="next_page" class="submit" value="{lang:next} ››" />     {/if}     </div>     </td>
+<td class="tableCellOne"><div class="itempadbig">	 {if previous_page}	 <input type="submit" name="previous_page" class="submit" value="‹‹ {lang:previous}" />	 {/if}	  	 <input type="submit" name="submit" class="submit" value="{lang:split_thread}" />	  	 {if next_page}	 <input type="submit" name="next_page" class="submit" value="{lang:next} ››" />	 {/if}	 </div>	 </td>
 
 <input type="checkbox" name="post_id[]" value="{post_id}" /> {lang:split}
 
@@ -3272,73 +3339,73 @@ $config["use_forum_url"] = "y";
 
 <!--- Begin Member Search -->  <script type="text/javascript"> <!--  var searchFieldCount = 1;  function add_search_field() {     if (document.getElementById('search_field_1'))     
 {         // Find last search field
-        var originalSearchField = document.getElementById('search_field_1');         searchFieldCount++;                  // Clone it, change the id   
-      var newSearchField = originalSearchField.cloneNode(true);         newSearchField.id = 'search_field_' + searchFieldCount;                  // Zero the input and change the names of fields    
-     var newFieldInputs = newSearchField.getElementsByTagName('input');         newFieldInputs[0].value = '';         newFieldInputs[0].name = 'search_keywords_' + searchFieldCount;                  var newFieldSelects = newSearchField.getElementsByTagName('select');         newFieldSelects[0].name = 'search_field_' + searchFieldCount;                  // Append it and we're done    
-     originalSearchField.parentNode.appendChild(newSearchField);     } }  function delete_search_field(obj) {     if (obj.parentNode && obj.parentNode.id != 'search_field_1')     {         obj.parentNode.parentNode.removeChild(obj.parentNode)     } }  //-->
+		var originalSearchField = document.getElementById('search_field_1');         searchFieldCount++;                  // Clone it, change the id   
+	  var newSearchField = originalSearchField.cloneNode(true);         newSearchField.id = 'search_field_' + searchFieldCount;                  // Zero the input and change the names of fields    
+	 var newFieldInputs = newSearchField.getElementsByTagName('input');         newFieldInputs[0].value = '';         newFieldInputs[0].name = 'search_keywords_' + searchFieldCount;                  var newFieldSelects = newSearchField.getElementsByTagName('select');         newFieldSelects[0].name = 'search_field_' + searchFieldCount;                  // Append it and we're done    
+	 originalSearchField.parentNode.appendChild(newSearchField);     } }  function delete_search_field(obj) {     if (obj.parentNode && obj.parentNode.id != 'search_field_1')     {         obj.parentNode.parentNode.removeChild(obj.parentNode)     } }  //-->
 </script>
 <table class='tableborder' border='0' cellspacing='0' cellpadding='0' style='width:100%'> <tr>     <td class='memberlistHead'>{lang:member_search}</td> </tr> <tr>     <td class='tableCellOne'>         {form:form_declaration:do_member_search}                  <div id="member_search_fields">                  <div id="search_field_1" class="itempadbig">         <input type="text" name="search_keywords_1" />         <select name='search_field_1' class='select' >         <option value='screen_name'>Search Field</option>         <option value='screen_name'>Screen Name</option>         <option value='email'>Email Address</option>         <option value='url'>URL</option>         <option value='location'>Location</option>         {custom_profile_field_options}         </select>         <a href="#" onclick="add_search_field(); return false;" class="defaultBold">+</a>         <a href="#" onclick="delete_search_field(this); return false;" class="defaultBold">-</a>         </div>                  </div>                  <select name='search_group_id' class='select' >         {group_id_options}         </select>                  <div class="itempadbig">  <input type='submit' value='Search' class='submit' /></div>                  </form>     </td> </tr> </table>
 
-{if allow_localization}     <div class="menuItem"><a href="{path:localization}">{lang:localization}</a></div>     {/if}	  </div>
+{if allow_localization}	 <div class="menuItem"><a href="{path:localization}">{lang:localization}</a></div>	 {/if}	  </div>
 
-{if allow_localization}     <div class="menuItem"><a href="{path:localization}">{lang:localization}</a></div>     {/if}     {if can_delete}     <div class="menuItem"><a href="{path:delete}">{lang:mbr_delete}</a></div>     {/if}	  </div>
+{if allow_localization}	 <div class="menuItem"><a href="{path:localization}">{lang:localization}</a></div>	 {/if}	 {if can_delete}	 <div class="menuItem"><a href="{path:delete}">{lang:mbr_delete}</a></div>	 {/if}	  </div>
 
-}     // END CLASS     ?>
+}	 // END CLASS	 ?>
 
-/* -------------------------------------     /*  delete_confirmation_form     /* -------------------------------------*/	  function delete_confirmation_form()     {     return <<< EOF	  {form_declaration}	  <table class="tableBorder" cellpadding="0" cellspacing="0" border="0" style="width:560px;" align="center">     <tr>         <td class="profileAlertHeadingBG" colspan="2">{lang:mbr_delete}</td>     </tr>     <tr>         <td class="tableRowHeadingBold" colspan="2">{lang:confirm_password}</td>     </tr>     <tr>         <td class="tableCellOne" align="right"><b>{lang:password}</b></td>         <td class="tableCellOne"><input type="password" style="width:80%" class="input" name="password" size="20" value="" maxlength="32" /></td>     </tr>     <tr>         <td class="tableCellOne" colspan="2">             <div class="itempadbig">{lang:mbr_delete_blurb}</div>             <div class="itempadbig alert"> ">
-{lang:mbr_delete_warning}</div>         </td>     </tr>     <tr>         <td class="tableCellTwo" colspan="2"><div class="itempadbig"><input type="submit" class="submit" value="{lang:submit}" /></div></td>     </tr>     </table>	  </form>	  EOF;     }     /* END */
+/* -------------------------------------	 /*  delete_confirmation_form	 /* -------------------------------------*/	  function delete_confirmation_form()	 {	 return <<< EOF	  {form_declaration}	  <table class="tableBorder" cellpadding="0" cellspacing="0" border="0" style="width:560px;" align="center">	 <tr>	     <td class="profileAlertHeadingBG" colspan="2">{lang:mbr_delete}</td>	 </tr>	 <tr>	     <td class="tableRowHeadingBold" colspan="2">{lang:confirm_password}</td>	 </tr>	 <tr>	     <td class="tableCellOne" align="right"><b>{lang:password}</b></td>	     <td class="tableCellOne"><input type="password" style="width:80%" class="input" name="password" size="20" value="" maxlength="32" /></td>	 </tr>	 <tr>	     <td class="tableCellOne" colspan="2">	         <div class="itempadbig">{lang:mbr_delete_blurb}</div>	         <div class="itempadbig alert"> ">
+{lang:mbr_delete_warning}</div>	     </td>	 </tr>	 <tr>	     <td class="tableCellTwo" colspan="2"><div class="itempadbig"><input type="submit" class="submit" value="{lang:submit}" /></div></td>	 </tr>	 </table>	  </form>	  EOF;	 }	 /* END */
 
-}     // END CLASS     ?>
+}	 // END CLASS	 ?>
 
-// -----------------------------------	 //  Bulletin Board - USER	 // -----------------------------------			 function bulletin_board()	 {	     return <<<ONEIL	     	 <div class='menuHeadingBG'><div class="tableHeading">{lang:bulletin_board}</div></div>		  {if can_post_bulletin}	 <table border='0'  cellspacing='0' cellpadding='0' style='width:100%;' >	 <tr><td class='tableCellOne'>	 <span class="defaultBold">» <a href='{path:send_bulletin}' >{lang:send_bulletin}</a></span>	 </td></tr>	 </table>	 {/if}		  {if no_bulletins}	 <div class="tableCellOne">	 <span class="defaultBold">{lang:message_no_bulletins}</span>	 {/if}			   {if bulletins}	 {include:bulletins}	 {/if}		  {if paginate}	 <table border='0'  cellspacing='5' cellpadding='0' class='tablePad' >	 <tr>	 <td  class='default' >	 {include:pagination_link}	 </td>	 </tr>	 </table>	 {/if}	         	 ONEIL;		  }	 // END			   // -----------------------------------	 //  Single Bulletin	 // -----------------------------------			 function bulletin()	 {	     return <<<JAFFA		  <div class="{style}" id="bulletin_div_{bulletin_id}">		  <span class="defaultBold">{lang:message_sender}</span>: {bulletin_sender}<br />	 <span class="defaultBold">{lang:message_date}</span>: {bulletin_date}<br />		  <div class="itempadbig">	 <textarea name='bulletin_{bulletin_id}' readonly='readonly' style='width:100%' class='textarea' rows='8' cols='90'>{bulletin_message}</textarea>	 </div>		  </div>	         	 JAFFA;		  }	 // END				    //-------------------------------------	 //  Bulletin Sending Form	 //-------------------------------------		  function bulletin_form()	 {	 return <<< EOF		  {form:form_declaration:sending_bulletin}		  {if message}	 <div class='tableCellOne'><div class='success'>{include:message}</div></div>	 {/if}		  <table border='0' cellspacing='0' cellpadding='0' style='width:100%'>		  <tr>	 <td class='profileHeadingBG' colspan="2"><div class="tableHeading">{lang:send_bulletin}</div></td>	 </tr>		  <tr>	 <td class='tableCellOne' style="width:20%;"><div class='defaultBold'>{lang:member_group}</div></td>	 <td class='tableCellOne' style="width:80%;">	 <select name="group_id">	 {group_id_options}	 </select>	 </td>	 </tr>		  <tr>	 <td class='tableCellTwo' style="width:20%;"><div class='defaultBold'>{lang:bulletin_message}</div></td>	 <td class='tableCellTwo' style="width:80%;"><textarea name='bulletin_message' style='width:100%' class='textarea' rows='10' cols='90'></textarea></td>	 </tr>		  <tr>	 <td class='tableCellOne' style="width:20%;"><div class='defaultBold'>{lang:bulletin_date}</div></td>	 <td class='tableCellOne' style="width:80%;">	 <input type="text" style="width:80%" class="input" name="bulletin_date" size="20" value="{input:bulletin_date}" maxlength="50" />	 </td>	 </tr>			   <tr>	 <td class='tableCellOne' style="width:20%;"><div class='defaultBold'>{lang:bulletin_expires}</div></td>	 <td class='tableCellOne' style="width:80%;">	 <input type="text" style="width:80%" class="input" name="bulletin_expires" size="20" value="{input:bulletin_expires}" maxlength="50" />	 </td>	 </tr>		  <tr>	 <td class='tableCellTwo' colspan="2">	 <div class='marginpad'>	 <input type='submit' class='submit' value='{lang:submit}' />	 </div>	 </td>	 </tr>		  </table>		  </form>	 EOF;	 }	 // END
+// -----------------------------------	 //  Bulletin Board - USER	 // -----------------------------------			 function bulletin_board()	 {	     return <<<ONEIL	     	 <div class='menuHeadingBG'><div class="tableHeading">{lang:bulletin_board}</div></div>		  {if can_post_bulletin}	 <table border='0'  cellspacing='0' cellpadding='0' style='width:100%;' >	 <tr><td class='tableCellOne'>	 <span class="defaultBold">» <a href='{path:send_bulletin}' >{lang:send_bulletin}</a></span>	 </td></tr>	 </table>	 {/if}		  {if no_bulletins}	 <div class="tableCellOne">	 <span class="defaultBold">{lang:message_no_bulletins}</span>	 {/if}			   {if bulletins}	 {include:bulletins}	 {/if}		  {if paginate}	 <table border='0'  cellspacing='5' cellpadding='0' class='tablePad' >	 <tr>	 <td  class='default' >	 {include:pagination_link}	 </td>	 </tr>	 </table>	 {/if}		     	 ONEIL;		  }	 // END			   // -----------------------------------	 //  Single Bulletin	 // -----------------------------------			 function bulletin()	 {	     return <<<JAFFA		  <div class="{style}" id="bulletin_div_{bulletin_id}">		  <span class="defaultBold">{lang:message_sender}</span>: {bulletin_sender}<br />	 <span class="defaultBold">{lang:message_date}</span>: {bulletin_date}<br />		  <div class="itempadbig">	 <textarea name='bulletin_{bulletin_id}' readonly='readonly' style='width:100%' class='textarea' rows='8' cols='90'>{bulletin_message}</textarea>	 </div>		  </div>		     	 JAFFA;		  }	 // END					//-------------------------------------	 //  Bulletin Sending Form	 //-------------------------------------		  function bulletin_form()	 {	 return <<< EOF		  {form:form_declaration:sending_bulletin}		  {if message}	 <div class='tableCellOne'><div class='success'>{include:message}</div></div>	 {/if}		  <table border='0' cellspacing='0' cellpadding='0' style='width:100%'>		  <tr>	 <td class='profileHeadingBG' colspan="2"><div class="tableHeading">{lang:send_bulletin}</div></td>	 </tr>		  <tr>	 <td class='tableCellOne' style="width:20%;"><div class='defaultBold'>{lang:member_group}</div></td>	 <td class='tableCellOne' style="width:80%;">	 <select name="group_id">	 {group_id_options}	 </select>	 </td>	 </tr>		  <tr>	 <td class='tableCellTwo' style="width:20%;"><div class='defaultBold'>{lang:bulletin_message}</div></td>	 <td class='tableCellTwo' style="width:80%;"><textarea name='bulletin_message' style='width:100%' class='textarea' rows='10' cols='90'></textarea></td>	 </tr>		  <tr>	 <td class='tableCellOne' style="width:20%;"><div class='defaultBold'>{lang:bulletin_date}</div></td>	 <td class='tableCellOne' style="width:80%;">	 <input type="text" style="width:80%" class="input" name="bulletin_date" size="20" value="{input:bulletin_date}" maxlength="50" />	 </td>	 </tr>			   <tr>	 <td class='tableCellOne' style="width:20%;"><div class='defaultBold'>{lang:bulletin_expires}</div></td>	 <td class='tableCellOne' style="width:80%;">	 <input type="text" style="width:80%" class="input" name="bulletin_expires" size="20" value="{input:bulletin_expires}" maxlength="50" />	 </td>	 </tr>		  <tr>	 <td class='tableCellTwo' colspan="2">	 <div class='marginpad'>	 <input type='submit' class='submit' value='{lang:submit}' />	 </div>	 </td>	 </tr>		  </table>		  </form>	 EOF;	 }	 // END
 
 {if edited}<div class="edited"><em>[ {lang:edited}: {edit_date format="%d %F %Y %h:%i %A"} {lang:by} <a href="{path:edit_author_profile}">{edit_author}</a> ]</em></div>{/if}
 
-<td class="tableCellOne" valign="top" colspan="2"><div class="post">{body}</div>     {if edited}<div class="edited"><em>[ {lang:edited}: {edit_date format="%d %F %Y %h:%i %A"} {lang:by} <a href="{path:edit_author_profile}">{edit_author}</a> ]</em></div>{/if}     {if attachments}     {include:post_attachments}     {/if}     {if signature}     {include:signature}     {/if}     </td>
+<td class="tableCellOne" valign="top" colspan="2"><div class="post">{body}</div>     {if edited}<div class="edited"><em>[ {lang:edited}: {edit_date format="%d %F %Y %h:%i %A"} {lang:by} <a href="{path:edit_author_profile}">{edit_author}</a> ]</em></div>{/if}     {if attachments}     {include:post_attachments}     {/if}     {if signature}     {include:signature}     {/if}	 </td>
 
-.edited {     font-size:    9px;     color:          #555;     }
+.edited {     font-size:    9px;     color:          #555;	 }
 
-<script type="text/javascript">     <!--      function showHideRow(el)     {     if (document.getElementById(el).style.display == "")     {         document.getElementById(el).style.display = "none";     }     else     {         document.getElementById(el).style.display = "";     }	}
+<script type="text/javascript">	 <!--	  function showHideRow(el)	 {     if (document.getElementById(el).style.display == "")     {         document.getElementById(el).style.display = "none";     }     else     {         document.getElementById(el).style.display = "";     }	}
    </script>
 
 <tr>
 
-{if is_ignored}     <tr>  <td class="tableCellOne" colspan="5">   {lang:topic_hidden} <strong>{author}</strong> {lang:is_ignored}.   <span style="float:right"><a href="#" onclick="showHideRow("{id1}");return false;">{lang:view_hide}</a> &bull;   <a href="{path:ignore}">{lang:stop_ignoring} {author}</a></span>  </td>     </tr>     {/if}	  <tr id="{id1}" {if is_ignored}style="display: none;"{/if}>
+{if is_ignored}	 <tr>  <td class="tableCellOne" colspan="5">   {lang:topic_hidden} <strong>{author}</strong> {lang:is_ignored}.   <span style="float:right"><a href="#" onclick="showHideRow("{id1}");return false;">{lang:view_hide}</a> &bull;   <a href="{path:ignore}">{lang:stop_ignoring} {author}</a></span>  </td>	 </tr>	 {/if}	  <tr id="{id1}" {if is_ignored}style="display: none;"{/if}>
 <script>
-function showfastreply()     {     if (document.getElementById("fastreply").style.display == "block")     {         document.getElementById("fastreply").style.display = "none";     }     else     {         document.getElementById("fastreply").style.display = "block";     }     }      //-->     </script>
+function showfastreply()	 {     if (document.getElementById("fastreply").style.display == "block")     {         document.getElementById("fastreply").style.display = "none";     }     else     {         document.getElementById("fastreply").style.display = "block";     }	 }	  //-->	 </script>
 
-function showfastreply()     {     if (document.getElementById("fastreply").style.display == "block")     {         document.getElementById("fastreply").style.display = "none";     }     else     {         document.getElementById("fastreply").style.display = "block";     }     }      function showHideRow(el)     {     if (document.getElementById(el).style.display == "")     {         document.getElementById(el).style.display = "none";     }     else     {         document.getElementById(el).style.display = "";     }	}
-     </script>
+function showfastreply()	 {     if (document.getElementById("fastreply").style.display == "block")     {         document.getElementById("fastreply").style.display = "none";     }     else     {         document.getElementById("fastreply").style.display = "block";     }	 }	  function showHideRow(el)	 {     if (document.getElementById(el).style.display == "")     {         document.getElementById(el).style.display = "none";     }     else     {         document.getElementById(el).style.display = "";     }	}
+	 </script>
 
 <tr>
 
-{if is_ignored}     <tr>  <td colspan="3">   <table class="ignored" style="width:100%">    <tr>    <td class="tableCellOne" colspan="3">     {lang:post_hidden} <strong>{author}</strong> {lang:is_ignored}.     <span style="float:right"><a href="#" onclick="showHideRow("{id9}");return false;">{lang:view_hide}</a> &bull;     <a href="{path:ignore}">{lang:stop_ignoring} {author}</a></span>    </td>    </tr>   </table>  </td>     </tr>     {/if}      <tr id="{id9}" {if is_ignored}style="display: none;"{/if}>
+{if is_ignored}	 <tr>  <td colspan="3">   <table class="ignored" style="width:100%">    <tr>    <td class="tableCellOne" colspan="3">     {lang:post_hidden} <strong>{author}</strong> {lang:is_ignored}.     <span style="float:right"><a href="#" onclick="showHideRow("{id9}");return false;">{lang:view_hide}</a> &bull;     <a href="{path:ignore}">{lang:stop_ignoring} {author}</a></span>    </td>    </tr>   </table>  </td>	 </tr>	 {/if}	  <tr id="{id9}" {if is_ignored}style="display: none;"{/if}>
 
 &nbsp;&nbsp;<span class="smallLinks">[ <a href="{path:ignore}" title="{lang:ignore}">{lang:ignore}</a> ]</span>
 <script>
-function showhide_topic_review()     {     if (document.getElementById("review_on").style.display == "block")     {         document.getElementById("review_on").style.display = "none";         document.getElementById("review_off").style.display = "block";	           }     else     {         document.getElementById("review_on").style.display = "block";         document.getElementById("review_off").style.display = "none";     }     }      //-->     </script>
+function showhide_topic_review()	 {     if (document.getElementById("review_on").style.display == "block")     {         document.getElementById("review_on").style.display = "none";         document.getElementById("review_off").style.display = "block";		       }     else     {         document.getElementById("review_on").style.display = "block";         document.getElementById("review_off").style.display = "none";     }	 }	  //-->	 </script>
 
-function showhide_topic_review()     {     if (document.getElementById("review_on").style.display == "block")     {         document.getElementById("review_on").style.display = "none";         document.getElementById("review_off").style.display = "block";	           }     else     {         document.getElementById("review_on").style.display = "block";         document.getElementById("review_off").style.display = "none";     }     }      function showHideRow(el)     {     if (document.getElementById(el).style.display == "")     {         document.getElementById(el).style.display = "none";     }     else     {         document.getElementById(el).style.display = "";     }	}
-     </script>
+function showhide_topic_review()	 {     if (document.getElementById("review_on").style.display == "block")     {         document.getElementById("review_on").style.display = "none";         document.getElementById("review_off").style.display = "block";		       }     else     {         document.getElementById("review_on").style.display = "block";         document.getElementById("review_off").style.display = "none";     }	 }	  function showHideRow(el)	 {     if (document.getElementById(el).style.display == "")     {         document.getElementById(el).style.display = "none";     }     else     {         document.getElementById(el).style.display = "";     }	}
+	 </script>
 
 <tr>
 
-{if is_ignored} <tr>  <td colspan="3">   <table class="ignored" style="width:100%">    <tr>    <td class="tableCellOne">     {lang:post_hidden} <strong>{author}</strong> {lang:is_ignored}.     <span style="float:right"><a href="#" onclick="showHideRow("{id1}");showHideRow("{id2}");return false;">{lang:view_hide}</a> &bull;     <a href="{path:ignore}">{lang:stop_ignoring} {author}</a></span>    </td>    </tr>   </table>  </td>     </tr>     {/if}      <tr id="{id1}" {if is_ignored}style="display: none;"{/if}>
+{if is_ignored} <tr>  <td colspan="3">   <table class="ignored" style="width:100%">    <tr>    <td class="tableCellOne">     {lang:post_hidden} <strong>{author}</strong> {lang:is_ignored}.     <span style="float:right"><a href="#" onclick="showHideRow("{id1}");showHideRow("{id2}");return false;">{lang:view_hide}</a> &bull;     <a href="{path:ignore}">{lang:stop_ignoring} {author}</a></span>    </td>    </tr>   </table>  </td>	 </tr>	 {/if}	  <tr id="{id1}" {if is_ignored}style="display: none;"{/if}>
 
 </tr><tr>
 
 </tr><tr id="{id2}" {if is_ignored}style="display: none;"{/if}>
 <script>
-.ignored {   border:               1px solid #B2B3CE;   padding:             0;   margin-top:        1px;   margin-bottom:  8px;     }
+.ignored {   border:               1px solid #B2B3CE;   padding:             0;   margin-top:        1px;   margin-bottom:  8px;	 }
 </script>
 
-<div class="borderTopBot"><div class="profileHead">{lang:subscriptions}</div></div>      <div class="profileMenuInner">     <div class="menuItem"><a href="{path:subscriptions}" >{lang:edit_subscriptions}</a></div>     </div>
+<div class="borderTopBot"><div class="profileHead">{lang:subscriptions}</div></div>	  <div class="profileMenuInner">	 <div class="menuItem"><a href="{path:subscriptions}" >{lang:edit_subscriptions}</a></div>	 </div>
 
-<div class="borderTopBot"><div class="profileHead">{lang:utilities}</div></div>      <div class="profileMenuInner">     <div class="menuItem"><a href="{path:subscriptions}" >{lang:edit_subscriptions}</a></div>     <div class="menuItem"><a href="{path:ignore_list}" >{lang:ignore_list}</a></div>     </div>
+<div class="borderTopBot"><div class="profileHead">{lang:utilities}</div></div>	  <div class="profileMenuInner">	 <div class="menuItem"><a href="{path:subscriptions}" >{lang:edit_subscriptions}</a></div>	 <div class="menuItem"><a href="{path:ignore_list}" >{lang:ignore_list}</a></div>	 </div>
 
 <div class="itempadbig"><a href="{search_path}"><b>{lang:view_posts_by_member}</b></a></div>
 
-<div class="itempadbig"><a href="{search_path}"><b>{lang:view_posts_by_member}</b></a></div>     {if ignore}   <div class="itempad"><b>{ignore_link}</b></div>     {/if}
+<div class="itempadbig"><a href="{search_path}"><b>{lang:view_posts_by_member}</b></a></div>	 {if ignore}   <div class="itempad"><b>{ignore_link}</b></div>	 {/if}
 
 {lang:total_posts_heading}
 
@@ -3358,7 +3425,7 @@ function showhide_topic_review()     {     if (document.getElementById("revi
 
 <div class="itempad">{lang:total_posts} {total_forum_posts}</div>
 
-<div class="itempad">{lang:total_replies} {total_forum_replies}</div>     <div class="itempad">{lang:total_posts} {total_forum_posts}</div>
+<div class="itempad">{lang:total_replies} {total_forum_replies}</div>	 <div class="itempad">{lang:total_posts} {total_forum_posts}</div>
 
 {lang:total_posts_heading}
 
@@ -3368,33 +3435,33 @@ function showhide_topic_review()     {     if (document.getElementById("revi
 
 {total_replies}
 
-</tr><tr>      <td class="tableCellOne"><div class="defaultBold">{lang:total_forum_posts}</div></td>     <td class="tableCellOne">{total_posts}</td>      {/if}      </tr><tr>      <td class="tableCellTwo"><div class="defaultBold">{lang:total_entries}</div></td>     <td class="tableCellTwo">{total_entries}</td>      </tr><tr>      <td class="tableCellOne"><div class="defaultBold">{lang:total_comments}</div></td>     <td class="tableCellOne">{total_comments}</td>
+</tr><tr>	  <td class="tableCellOne"><div class="defaultBold">{lang:total_forum_posts}</div></td>	 <td class="tableCellOne">{total_posts}</td>	  {/if}	  </tr><tr>	  <td class="tableCellTwo"><div class="defaultBold">{lang:total_entries}</div></td>	 <td class="tableCellTwo">{total_entries}</td>	  </tr><tr>	  <td class="tableCellOne"><div class="defaultBold">{lang:total_comments}</div></td>	 <td class="tableCellOne">{total_comments}</td>
 
-</tr><tr>      <td class="tableCellOne"><div class="defaultBold">{lang:total_forum_replies}</div></td>     <td class="tableCellOne">{total_replies}</td>      </tr><tr>      <td class="tableCellTwo"><div class="defaultBold">{lang:total_forum_posts}</div></td>     <td class="tableCellTwo">{total_posts}</td>      {/if}      </tr><tr>      <td class="tableCellOne"><div class="defaultBold">{lang:total_entries}</div></td>     <td class="tableCellOne">{total_entries}</td>      </tr><tr>      <td class="tableCellTwo"><div class="defaultBold">{lang:total_comments}</div></td>     <td class="tableCellTwo">{total_comments}</td>
+</tr><tr>	  <td class="tableCellOne"><div class="defaultBold">{lang:total_forum_replies}</div></td>	 <td class="tableCellOne">{total_replies}</td>	  </tr><tr>	  <td class="tableCellTwo"><div class="defaultBold">{lang:total_forum_posts}</div></td>	 <td class="tableCellTwo">{total_posts}</td>	  {/if}	  </tr><tr>	  <td class="tableCellOne"><div class="defaultBold">{lang:total_entries}</div></td>	 <td class="tableCellOne">{total_entries}</td>	  </tr><tr>	  <td class="tableCellTwo"><div class="defaultBold">{lang:total_comments}</div></td>	 <td class="tableCellTwo">{total_comments}</td>
 
-</tr><tr>      <td class="tableCellTwo"><div class="defaultBold">{lang:total_forum_posts}</div></td>     <td class="tableCellOne"><div class="default">{total_forum_posts}</div></td>
+</tr><tr>	  <td class="tableCellTwo"><div class="defaultBold">{lang:total_forum_posts}</div></td>	 <td class="tableCellOne"><div class="default">{total_forum_posts}</div></td>
 
-</tr><tr>      <td class="tableCellTwo"><div class="defaultBold">{lang:total_forum_replies}</div></td>     <td class="tableCellOne"><div class="default">{total_forum_replies}</div></td>	  </tr><tr>      <td class="tableCellTwo"><div class="defaultBold">{lang:total_forum_posts}</div></td>     <td class="tableCellOne"><div class="default">{total_forum_posts}</div></td>
+</tr><tr>	  <td class="tableCellTwo"><div class="defaultBold">{lang:total_forum_replies}</div></td>	 <td class="tableCellOne"><div class="default">{total_forum_replies}</div></td>	  </tr><tr>	  <td class="tableCellTwo"><div class="defaultBold">{lang:total_forum_posts}</div></td>	 <td class="tableCellOne"><div class="default">{total_forum_posts}</div></td>
 
-</tr><tr>      <td class="tableCellTwo">     <div class="itempadbig"><input type="submit" name="submit" class="submit" value="{lang:merge_threads}" /></div>     </td>
+</tr><tr>	  <td class="tableCellTwo">	 <div class="itempadbig"><input type="submit" name="submit" class="submit" value="{lang:merge_threads}" /></div>	 </td>
 
-</tr><tr>      <td class="tableCellTwo">     <div class="itempad"><input type="checkbox" class="checkbox" name="notify" value="1" checked="checked" /> {lang:notify_thread_owner}</div>     </td>      </tr><tr>      <td class="tableCellTwo">     <div class="itempadbig"><input type="submit" name="submit" class="submit" value="{lang:merge_threads}" /></div>     </td>
+</tr><tr>	  <td class="tableCellTwo">	 <div class="itempad"><input type="checkbox" class="checkbox" name="notify" value="1" checked="checked" /> {lang:notify_thread_owner}</div>	 </td>	  </tr><tr>	  <td class="tableCellTwo">	 <div class="itempadbig"><input type="submit" name="submit" class="submit" value="{lang:merge_threads}" /></div>	 </td>
 
 <td class="tableCellTwo"><input type="checkbox" class="checkbox" name="redirect" value="1" checked="checked" /> {lang:retain_move_link}</td>
 
-<td class="tableCellTwo">     <div class="itempad"><input type="checkbox" class="checkbox" name="redirect" value="1" checked="checked" /> {lang:retain_move_link}</div>     <div class="itempad"><input type="checkbox" class="checkbox" name="notify" value="1" checked="checked" /> {lang:notify_thread_owner}</div>     </td>
+<td class="tableCellTwo">	 <div class="itempad"><input type="checkbox" class="checkbox" name="redirect" value="1" checked="checked" /> {lang:retain_move_link}</div>	 <div class="itempad"><input type="checkbox" class="checkbox" name="notify" value="1" checked="checked" /> {lang:notify_thread_owner}</div>	 </td>
 
-{if forums_exist}	 <tr>	 <td class="tableCellOne"><div class="itempadbig">{lang:forum}	  <select name="forum_id" class="select">	 {split_select_options}	 </select>	 </div></td>	 </tr>     {/if}      <tr>
+{if forums_exist}	 <tr>	 <td class="tableCellOne"><div class="itempadbig">{lang:forum}	  <select name="forum_id" class="select">	 {split_select_options}	 </select>	 </div></td>	 </tr>	 {/if}	  <tr>
 
-{if forums_exist}	 <tr>	 <td class="tableCellOne"><div class="itempadbig">{lang:forum}	  <select name="forum_id" class="select">	 {split_select_options}	 </select>	 </div></td>	 </tr>     {/if}      <tr>      <td class="tableCellOne">     <div class="itempad"><input type="checkbox" class="checkbox" name="notify" value="1" checked="checked" /> {lang:notify_thread_owner}</div>     </td>      </tr><tr>
+{if forums_exist}	 <tr>	 <td class="tableCellOne"><div class="itempadbig">{lang:forum}	  <select name="forum_id" class="select">	 {split_select_options}	 </select>	 </div></td>	 </tr>	 {/if}	  <tr>	  <td class="tableCellOne">	 <div class="itempad"><input type="checkbox" class="checkbox" name="notify" value="1" checked="checked" /> {lang:notify_thread_owner}</div>	 </td>	  </tr><tr>
 
 {if can_ban}&nbsp;&nbsp;<span class="smallLinks">[ <a href="{path:ban_member}">{lang:ban_member}</a> ]</span>{/if}
 
-{if can_ban}&nbsp;&nbsp;<span class="smallLinks">[ <a href="{path:ban_member}">{lang:ban_member}</a> ]</span>{/if}      {if can_report}&nbsp;&nbsp;<span class="smallLinks">[ <a href="{path:report}" title="{lang:report}">{lang:report}</a> ]</span>{/if}
+{if can_ban}&nbsp;&nbsp;<span class="smallLinks">[ <a href="{path:ban_member}">{lang:ban_member}</a> ]</span>{/if}	  {if can_report}&nbsp;&nbsp;<span class="smallLinks">[ <a href="{path:report}" title="{lang:report}">{lang:report}</a> ]</span>{/if}
 
-<fieldset class="searchBox">     <legend class="searchBoxTitle">{lang:search_by_member_name}</legend>      <input type="text" class="input" maxlength="100" size="40" name="member_name" style="width:100%;" />     <div class="searchpad"><input type="checkbox" class="checkbox" name="exact_match" value="y"  /> {lang:exact_name_match}</div>     </fieldset>
+<fieldset class="searchBox">	 <legend class="searchBoxTitle">{lang:search_by_member_name}</legend>	  <input type="text" class="input" maxlength="100" size="40" name="member_name" style="width:100%;" />	 <div class="searchpad"><input type="checkbox" class="checkbox" name="exact_match" value="y"  /> {lang:exact_name_match}</div>	 </fieldset>
 
-<script type="text/javascript" charset="utf-8">     function switchto(el)     {         if (el == 'byMemberGroup')         {             document.getElementById('byMemberGroup').style.display = "";             document.getElementById('byMemberName').style.display = "none";         }         else         {             document.getElementById('byMemberGroup').style.display = "none";             document.getElementById('byMemberName').style.display = "";	              }     }     </script>      <fieldset id="byMemberName" class="searchBox">     <legend class="searchBoxTitle">{lang:search_by_member_name} - (<a href="#" onclick="switchto('byMemberGroup'); return false;">{lang:switch_to_group}</a>)</legend>      <input type="text" class="input" maxlength="100" size="40" name="member_name" style="width:100%;" />     <div class="searchpad"><input type="checkbox" class="checkbox" name="exact_match" value="y"  /> {lang:exact_name_match}</div>     </fieldset>      <fieldset id="byMemberGroup" class="searchBox" style="display: none;">     <legend class="searchBoxTitle">{lang:search_by_member_group} - (<a href="#" onclick="switchto('byMemberName'); return false;">{lang:switch_to_name}</a>)</legend>      <select name='member_group[]' class='multiselect' size='5' style="width:100%;" multiple='multiple'>     {member_group_select_options}     </select>     </fieldset>
+<script type="text/javascript" charset="utf-8">     function switchto(el)     {         if (el == 'byMemberGroup')         {             document.getElementById('byMemberGroup').style.display = "";             document.getElementById('byMemberName').style.display = "none";         }         else         {             document.getElementById('byMemberGroup').style.display = "none";             document.getElementById('byMemberName').style.display = "";		          }     }	 </script>	  <fieldset id="byMemberName" class="searchBox">	 <legend class="searchBoxTitle">{lang:search_by_member_name} - (<a href="#" onclick="switchto('byMemberGroup'); return false;">{lang:switch_to_group}</a>)</legend>	  <input type="text" class="input" maxlength="100" size="40" name="member_name" style="width:100%;" />	 <div class="searchpad"><input type="checkbox" class="checkbox" name="exact_match" value="y"  /> {lang:exact_name_match}</div>	 </fieldset>	  <fieldset id="byMemberGroup" class="searchBox" style="display: none;">	 <legend class="searchBoxTitle">{lang:search_by_member_group} - (<a href="#" onclick="switchto('byMemberName'); return false;">{lang:switch_to_name}</a>)</legend>	  <select name='member_group[]' class='multiselect' size='5' style="width:100%;" multiple='multiple'>	 {member_group_select_options}	 </select>	 </fieldset>
 
 <body>
 
@@ -3408,33 +3475,33 @@ function showhide_topic_review()     {     if (document.getElementById("revi
 
 <a href="{path:view_active_topics}">{lang:view_active_topics}</a>
 
-<div id="forum{category_id}off" style="display:none;"> <table class="tableBorder" cellpadding="0" cellspacing="0" border="0" style="width:100%;" > <tr> <td class="tableHeadingBG"><div class="tableHeading">{category_name}</div>     {if category_description}<div class="tableHeadingSmall">{category_description}</div>{/if} </td> <td class="tableHeadingBG" align="right"> <a href="javascript:void(0);" onclick="show_element("forum{category_id}")"><img src="{path:image_url}expand.gif" width="10" height="10" border="0" title="{lang:show_category}" alt="{lang:show_category}" /></a>  </td> </tr> </table> </div>  <div id="forum{category_id}on" style="display:block;"> <table class="tableBorderLeft" cellpadding="0" cellspacing="0" border="0" style="width:100%;" > <tr> <td class="tableHeadingBG" colspan="4"><div class="tableHeading">{category_name}</div>     {if category_description}<div class="tableHeadingSmall">{category_description}</div>{/if} </td> <td class="tableHeadingBG" colspan="1" align="right"> <a href="javascript:void(0);" onclick="hide_element("forum{category_id}")"><img src="{path:image_url}collapse.gif" width="10" height="10" border="0" title="{lang:hide_category}" alt="{lang:hide_category}" /></a> </td> </tr> <tr> <td class="tableRowHeadingBold" colspan="2">{lang:forum_name_heading}</td> <td class="tableRowHeadingBold" align="center">{lang:total_topics_heading}</td> <td class="tableRowHeadingBold" align="center">{lang:total_posts_heading}</td> <td class="tableRowHeadingBold">{lang:post_info_heading}</td> </tr>
+<div id="forum{category_id}off" style="display:none;"> <table class="tableBorder" cellpadding="0" cellspacing="0" border="0" style="width:100%;" > <tr> <td class="tableHeadingBG"><div class="tableHeading">{category_name}</div>	 {if category_description}<div class="tableHeadingSmall">{category_description}</div>{/if} </td> <td class="tableHeadingBG" align="right"> <a href="javascript:void(0);" onclick="show_element("forum{category_id}")"><img src="{path:image_url}expand.gif" width="10" height="10" border="0" title="{lang:show_category}" alt="{lang:show_category}" /></a>  </td> </tr> </table> </div>  <div id="forum{category_id}on" style="display:block;"> <table class="tableBorderLeft" cellpadding="0" cellspacing="0" border="0" style="width:100%;" > <tr> <td class="tableHeadingBG" colspan="4"><div class="tableHeading">{category_name}</div>	 {if category_description}<div class="tableHeadingSmall">{category_description}</div>{/if} </td> <td class="tableHeadingBG" colspan="1" align="right"> <a href="javascript:void(0);" onclick="hide_element("forum{category_id}")"><img src="{path:image_url}collapse.gif" width="10" height="10" border="0" title="{lang:hide_category}" alt="{lang:hide_category}" /></a> </td> </tr> <tr> <td class="tableRowHeadingBold" colspan="2">{lang:forum_name_heading}</td> <td class="tableRowHeadingBold" align="center">{lang:total_topics_heading}</td> <td class="tableRowHeadingBold" align="center">{lang:total_posts_heading}</td> <td class="tableRowHeadingBold">{lang:post_info_heading}</td> </tr>
 
 </div>
 
 {if can_post}     <td align="center"><div class="button100"><div class="buttonSmall" id="{id3}" onclick="navJump("{path:quote_reply}")" onmouseover="navHover(this);" onmouseout="navReset(this);">{lang:quote}</div></div></td>	 {/if}
 
-{if is_post}     {if can_move}         <td><div class="button100"><div class="buttonSmall" id="{id10}" onclick="navJump("{path:move_reply}")" onmouseover="navHover(this);" onmouseout="navReset(this);">{lang:move}</div></div></td>     {/if}     {/if}	  {if can_post}     <td align="center"><div class="button100"><div class="buttonSmall" id="{id3}" onclick="navJump("{path:quote_reply}")" onmouseover="navHover(this);" onmouseout="navReset(this);">{lang:quote}</div></div></td>     {/if}
+{if is_post}     {if can_move}         <td><div class="button100"><div class="buttonSmall" id="{id10}" onclick="navJump("{path:move_reply}")" onmouseover="navHover(this);" onmouseout="navReset(this);">{lang:move}</div></div></td>     {/if}	 {/if}	  {if can_post}     <td align="center"><div class="button100"><div class="buttonSmall" id="{id3}" onclick="navJump("{path:quote_reply}")" onmouseover="navHover(this);" onmouseout="navReset(this);">{lang:quote}</div></div></td>	 {/if}
 
 {topic_type}<a href="{path:view_thread}" title="{topic_title}" ><b>{topic_title}</b></a>
 
-{if reply_results == 0}     {topic_type}<a href="{path:view_thread}" title="{topic_title}" ><b>{topic_title}</b></a>     {if:elseif reply_results < 6}     {topic_type}<a href="{path:view_thread}" title="{topic_title}" ><b>{topic_title}</b></a>     <br /><span class="smallLinks">{lang:found_in} <ul>{include:reply_results}</ul></span>     {if:else}     {topic_type}<a href="{path:view_thread}" title="{topic_title}" ><b>{topic_title}</b></a>     <br /><span class="smallLinks">{lang:found_in_many} - <a href="{path:search_thread}">{lang:search_thread}</a></span>     {/if}
+{if reply_results == 0}     {topic_type}<a href="{path:view_thread}" title="{topic_title}" ><b>{topic_title}</b></a>	 {if:elseif reply_results < 6}     {topic_type}<a href="{path:view_thread}" title="{topic_title}" ><b>{topic_title}</b></a>     <br /><span class="smallLinks">{lang:found_in} <ul>{include:reply_results}</ul></span>	 {if:else}     {topic_type}<a href="{path:view_thread}" title="{topic_title}" ><b>{topic_title}</b></a>     <br /><span class="smallLinks">{lang:found_in_many} - <a href="{path:search_thread}">{lang:search_thread}</a></span>	 {/if}
 
-}     // END CLASS     ?>
+}	 // END CLASS	 ?>
 
-//-------------------------------------     //  Search Thread Page     //-------------------------------------      function search_thread_page()     {     return <<< EOF     {include:html_header}     {include:top_bar}     {include:page_header}     {include:page_subheader}     <div id="content">     {include:thread_search_results}     </div>     {include:html_footer}     EOF;     }     /* END */	    //-------------------------------------     //  Reply Results     //-------------------------------------      function reply_results()     {     return <<< EOF     <li><a href="{path:viewreply}">{snippet}&hellip;</a> by <a href="{path:member_profile}">{author}</a></li>     EOF;     }     /* END */	//-------------------------------------     //  Search Results     //-------------------------------------      function thread_search_results()     {     return <<< EOF      <table cellpadding="3" cellspacing="0" border="0" style="width:98%;" >     <tr>     <td valign="middle"><div class="itempadbig"><div class="defaultBold">{lang:keywords} {keywords}</div></div>     </td>     <td align="right"><div class="defaultBold">Total Results: {total_results}</div>     </td>     </tr>     </table>       <table class="tableBorderLeft" cellpadding="0" cellspacing="0" border="0" style="width:100%;" >     <tr>     <td class="tableHeadingBG" colspan="5"><div class="tableHeading">{lang:search_results}</div></td>     </tr><tr>     <td class="tableRowHeadingBold" colspan="2" style="width:62%;">{lang:replies_in_topic} <em>{topic_title}</em></td>     <td class="tableRowHeadingBold" style="width:38%;">{lang:reply_info_heading}</td>     </tr>     {include:thread_result_rows}     </table>       <table cellpadding="0" cellspacing="0" border="0" >     <tr>     <td class="itempadbig" valign="bottom">     {if paginate}     <table cellpadding="0" cellspacing="0" border="0" class="paginateBorder">     <tr>     <td><div class="paginateStat">{current_page} of {total_pages}</div></td>     {pagination_links}     </tr>     </table>     {/if}     </td>     </tr>     </table>     EOF;     }     /* END */	//-------------------------------------     //  Thread Result Rows     //-------------------------------------      function thread_result_rows()     {     return <<< EOF     <tr>     <td class="tableCellTwo" style="width:4%;" align="center"><a href="{path:view_thread}"><img src="{topic_marker}" width="24" height="18" border="0" alt="{topic_title}" title="{topic_title}" /></a></td>     <td class="tableCellOne" style="width:62%;">     <div class="topicTitle">     <a href="{path:viewreply}" title="{lang:view_reply}" >{snippet}&hellip;</a>     <div class="forumLightLinks">{lang:posted_by} <a href="{path:member_profile}">{author}</a></div>     </div>     </td>     <td class="tableCellOne" style="width:38%;">     <div class="tablePostInfo">     {lang:posted_on} {post_date format="%m-%d-%Y %h:%i %A"}     </div>     </td>     </tr>     EOF;     }     /* END */
+//-------------------------------------	 //  Search Thread Page	 //-------------------------------------	  function search_thread_page()	 {	 return <<< EOF	 {include:html_header}	 {include:top_bar}	 {include:page_header}	 {include:page_subheader}	 <div id="content">	 {include:thread_search_results}	 </div>	 {include:html_footer}	 EOF;	 }	 /* END */		//-------------------------------------	 //  Reply Results	 //-------------------------------------	  function reply_results()	 {	 return <<< EOF	 <li><a href="{path:viewreply}">{snippet}&hellip;</a> by <a href="{path:member_profile}">{author}</a></li>	 EOF;	 }	 /* END */	//-------------------------------------	 //  Search Results	 //-------------------------------------	  function thread_search_results()	 {	 return <<< EOF	  <table cellpadding="3" cellspacing="0" border="0" style="width:98%;" >	 <tr>	 <td valign="middle"><div class="itempadbig"><div class="defaultBold">{lang:keywords} {keywords}</div></div>	 </td>	 <td align="right"><div class="defaultBold">Total Results: {total_results}</div>	 </td>	 </tr>	 </table>	   <table class="tableBorderLeft" cellpadding="0" cellspacing="0" border="0" style="width:100%;" >	 <tr>	 <td class="tableHeadingBG" colspan="5"><div class="tableHeading">{lang:search_results}</div></td>	 </tr><tr>	 <td class="tableRowHeadingBold" colspan="2" style="width:62%;">{lang:replies_in_topic} <em>{topic_title}</em></td>	 <td class="tableRowHeadingBold" style="width:38%;">{lang:reply_info_heading}</td>	 </tr>	 {include:thread_result_rows}	 </table>	   <table cellpadding="0" cellspacing="0" border="0" >	 <tr>	 <td class="itempadbig" valign="bottom">	 {if paginate}     <table cellpadding="0" cellspacing="0" border="0" class="paginateBorder">     <tr>     <td><div class="paginateStat">{current_page} of {total_pages}</div></td>     {pagination_links}     </tr>     </table>	 {/if}	 </td>	 </tr>	 </table>	 EOF;	 }	 /* END */	//-------------------------------------	 //  Thread Result Rows	 //-------------------------------------	  function thread_result_rows()	 {     return <<< EOF	 <tr>	 <td class="tableCellTwo" style="width:4%;" align="center"><a href="{path:view_thread}"><img src="{topic_marker}" width="24" height="18" border="0" alt="{topic_title}" title="{topic_title}" /></a></td>	 <td class="tableCellOne" style="width:62%;">	 <div class="topicTitle">     <a href="{path:viewreply}" title="{lang:view_reply}" >{snippet}&hellip;</a>     <div class="forumLightLinks">{lang:posted_by} <a href="{path:member_profile}">{author}</a></div>	 </div>	 </td>	 <td class="tableCellOne" style="width:38%;">	 <div class="tablePostInfo">     {lang:posted_on} {post_date format="%m-%d-%Y %h:%i %A"}	 </div>	 </td>	 </tr>	 EOF;	 }	 /* END */
 
 {if can_post}     <td align="center"><div class="button100"><div class="buttonSmall" id="{id3}" onclick="navJump("{path:quote_reply}")" onmouseover="navHover(this);" onmouseout="navReset(this);">{lang:quote}</div></div></td>	 {/if}
 
-{if is_post}     {if can_move}         <td><div class="button100"><div class="buttonSmall" id="{id10}" onclick="navJump("{path:move_reply}")" onmouseover="navHover(this);" onmouseout="navReset(this);">{lang:move}</div></div></td>     {/if}     {/if}	  {if can_post}     <td align="center"><div class="button100"><div class="buttonSmall" id="{id3}" onclick="navJump("{path:quote_reply}")" onmouseover="navHover(this);" onmouseout="navReset(this);">{lang:quote}</div></div></td>     {/if}
+{if is_post}     {if can_move}         <td><div class="button100"><div class="buttonSmall" id="{id10}" onclick="navJump("{path:move_reply}")" onmouseover="navHover(this);" onmouseout="navReset(this);">{lang:move}</div></div></td>     {/if}	 {/if}	  {if can_post}     <td align="center"><div class="button100"><div class="buttonSmall" id="{id3}" onclick="navJump("{path:quote_reply}")" onmouseover="navHover(this);" onmouseout="navReset(this);">{lang:quote}</div></div></td>	 {/if}
 
 {topic_type}<a href="{path:view_thread}" title="{topic_title}" ><b>{topic_title}</b></a>
 
-{if reply_results == 0}     {topic_type}<a href="{path:view_thread}" title="{topic_title}" ><b>{topic_title}</b></a>     {if:elseif reply_results < 6}     {topic_type}<a href="{path:view_thread}" title="{topic_title}" ><b>{topic_title}</b></a>     <br /><span class="smallLinks">{lang:found_in} <ul>{include:reply_results}</ul></span>     {if:else}     {topic_type}<a href="{path:view_thread}" title="{topic_title}" ><b>{topic_title}</b></a>     <br /><span class="smallLinks">{lang:found_in_many} - <a href="{path:search_thread}">{lang:search_thread}</a></span>     {/if}
+{if reply_results == 0}     {topic_type}<a href="{path:view_thread}" title="{topic_title}" ><b>{topic_title}</b></a>	 {if:elseif reply_results < 6}     {topic_type}<a href="{path:view_thread}" title="{topic_title}" ><b>{topic_title}</b></a>     <br /><span class="smallLinks">{lang:found_in} <ul>{include:reply_results}</ul></span>	 {if:else}     {topic_type}<a href="{path:view_thread}" title="{topic_title}" ><b>{topic_title}</b></a>     <br /><span class="smallLinks">{lang:found_in_many} - <a href="{path:search_thread}">{lang:search_thread}</a></span>	 {/if}
 
-}     // END CLASS     ?>
+}	 // END CLASS	 ?>
 
-//-------------------------------------     //  Search Thread Page     //-------------------------------------      function search_thread_page()     {     return <<< EOF     {include:html_header}     {include:top_bar}     {include:page_header}     {include:page_subheader}     <div id="content">     {include:thread_search_results}     </div>     {include:html_footer}     EOF;     }     /* END */	    //-------------------------------------     //  Reply Results     //-------------------------------------      function reply_results()     {     return <<< EOF     <li><a href="{path:viewreply}">{snippet}&hellip;</a> by <a href="{path:member_profile}">{author}</a></li>     EOF;     }     /* END */	//-------------------------------------     //  Search Results     //-------------------------------------      function thread_search_results()     {     return <<< EOF      <table cellpadding="3" cellspacing="0" border="0" style="width:98%;" >     <tr>     <td valign="middle"><div class="itempadbig"><div class="defaultBold">{lang:keywords} {keywords}</div></div>     </td>     <td align="right"><div class="defaultBold">Total Results: {total_results}</div>     </td>     </tr>     </table>       <table class="tableBorderLeft" cellpadding="0" cellspacing="0" border="0" style="width:100%;" >     <tr>     <td class="tableHeadingBG" colspan="5"><div class="tableHeading">{lang:search_results}</div></td>     </tr><tr>     <td class="tableRowHeadingBold" colspan="2" style="width:62%;">{lang:replies_in_topic} <em>{topic_title}</em></td>     <td class="tableRowHeadingBold" style="width:38%;">{lang:reply_info_heading}</td>     </tr>     {include:thread_result_rows}     </table>       <table cellpadding="0" cellspacing="0" border="0" >     <tr>     <td class="itempadbig" valign="bottom">     {if paginate}     <table cellpadding="0" cellspacing="0" border="0" class="paginateBorder">     <tr>     <td><div class="paginateStat">{current_page} of {total_pages}</div></td>     {pagination_links}     </tr>     </table>     {/if}     </td>     </tr>     </table>     EOF;     }     /* END */	//-------------------------------------     //  Thread Result Rows     //-------------------------------------      function thread_result_rows()     {     return <<< EOF     <tr>     <td class="tableCellTwo" style="width:4%;" align="center"><a href="{path:view_thread}"><img src="{topic_marker}" width="24" height="18" border="0" alt="{topic_title}" title="{topic_title}" /></a></td>     <td class="tableCellOne" style="width:62%;">     <div class="topicTitle">     <a href="{path:viewreply}" title="{lang:view_reply}" >{snippet}&hellip;</a>     <div class="forumLightLinks">{lang:posted_by} <a href="{path:member_profile}">{author}</a></div>     </div>     </td>     <td class="tableCellOne" style="width:38%;">     <div class="tablePostInfo">     {lang:posted_on} {post_date format="%m-%d-%Y %h:%i %A"}     </div>     </td>     </tr>     EOF;     }     /* END */
+//-------------------------------------	 //  Search Thread Page	 //-------------------------------------	  function search_thread_page()	 {	 return <<< EOF	 {include:html_header}	 {include:top_bar}	 {include:page_header}	 {include:page_subheader}	 <div id="content">	 {include:thread_search_results}	 </div>	 {include:html_footer}	 EOF;	 }	 /* END */		//-------------------------------------	 //  Reply Results	 //-------------------------------------	  function reply_results()	 {	 return <<< EOF	 <li><a href="{path:viewreply}">{snippet}&hellip;</a> by <a href="{path:member_profile}">{author}</a></li>	 EOF;	 }	 /* END */	//-------------------------------------	 //  Search Results	 //-------------------------------------	  function thread_search_results()	 {	 return <<< EOF	  <table cellpadding="3" cellspacing="0" border="0" style="width:98%;" >	 <tr>	 <td valign="middle"><div class="itempadbig"><div class="defaultBold">{lang:keywords} {keywords}</div></div>	 </td>	 <td align="right"><div class="defaultBold">Total Results: {total_results}</div>	 </td>	 </tr>	 </table>	   <table class="tableBorderLeft" cellpadding="0" cellspacing="0" border="0" style="width:100%;" >	 <tr>	 <td class="tableHeadingBG" colspan="5"><div class="tableHeading">{lang:search_results}</div></td>	 </tr><tr>	 <td class="tableRowHeadingBold" colspan="2" style="width:62%;">{lang:replies_in_topic} <em>{topic_title}</em></td>	 <td class="tableRowHeadingBold" style="width:38%;">{lang:reply_info_heading}</td>	 </tr>	 {include:thread_result_rows}	 </table>	   <table cellpadding="0" cellspacing="0" border="0" >	 <tr>	 <td class="itempadbig" valign="bottom">	 {if paginate}     <table cellpadding="0" cellspacing="0" border="0" class="paginateBorder">     <tr>     <td><div class="paginateStat">{current_page} of {total_pages}</div></td>     {pagination_links}     </tr>     </table>	 {/if}	 </td>	 </tr>	 </table>	 EOF;	 }	 /* END */	//-------------------------------------	 //  Thread Result Rows	 //-------------------------------------	  function thread_result_rows()	 {     return <<< EOF	 <tr>	 <td class="tableCellTwo" style="width:4%;" align="center"><a href="{path:view_thread}"><img src="{topic_marker}" width="24" height="18" border="0" alt="{topic_title}" title="{topic_title}" /></a></td>	 <td class="tableCellOne" style="width:62%;">	 <div class="topicTitle">     <a href="{path:viewreply}" title="{lang:view_reply}" >{snippet}&hellip;</a>     <div class="forumLightLinks">{lang:posted_by} <a href="{path:member_profile}">{author}</a></div>	 </div>	 </td>	 <td class="tableCellOne" style="width:38%;">	 <div class="tablePostInfo">     {lang:posted_on} {post_date format="%m-%d-%Y %h:%i %A"}	 </div>	 </td>	 </tr>	 EOF;	 }	 /* END */
 
 <html>
 
@@ -3499,17 +3566,17 @@ EOF;
 
 <!DOCTYPE html>
 <html lang="en">
-      <head>
-	      <meta charset="UTF-8">
-	      <title>Hello, World!</title>
-      </head>
+	  <head>
+		  <meta charset="UTF-8">
+		  <title>Hello, World!</title>
+	  </head>
 
 <body>
-	      <h1>Hello, World!</h1>
-	      <p>
-	      This is an excellent way to see our work.
-	      </p>
-      </body>
+		  <h1>Hello, World!</h1>
+		  <p>
+		  This is an excellent way to see our work.
+		  </p>
+	  </body>
 </html>
 
 {embed="site/.navigation" loc="books"}
@@ -3806,18 +3873,18 @@ entry_id="{entry_id}"
 show_disabled="yes"
 success="store/thank_you"
 }
-       <h3>{item_name}</h3>
+	   <h3>{item_name}</h3>
 
 <p><strong>{item_sale_price}</strong></p>
 
 {if item_type == "purchase"}
-	       <p><a href="{buy_now_url}" onclick="window.open(this.href);return false;">Buy Now</a></p>
-	       <p><a href="{add_to_cart_url}" onclick="window.open(this.href);return false;">Add to Cart</a></p>
-	       <p><a href="{view_cart_url}" onclick="window.open(this.href);return false;">View Cart</a></p>
-       {/if}
-       {if item_type == "subscription"}
-	       <p><a href="{subscribe_now_url}" onclick="window.open(this.href);return false;">Subscribe Now</a></p>
-       {/if}
+		   <p><a href="{buy_now_url}" onclick="window.open(this.href);return false;">Buy Now</a></p>
+		   <p><a href="{add_to_cart_url}" onclick="window.open(this.href);return false;">Add to Cart</a></p>
+		   <p><a href="{view_cart_url}" onclick="window.open(this.href);return false;">View Cart</a></p>
+	   {/if}
+	   {if item_type == "subscription"}
+		   <p><a href="{subscribe_now_url}" onclick="window.open(this.href);return false;">Subscribe Now</a></p>
+	   {/if}
 {/exp:simple_commerce:purchase}
 
 {if item_enabled == "n"}
@@ -4164,18 +4231,18 @@ paginate="top" paginate="bottom"  paginate="both"  paginate="inline"
 
 <script type="text/javascript">
 	function showHideComment(el) {
-	    if (document.getElementById(el).style.display == "block") {
+		if (document.getElementById(el).style.display == "block") {
 		document.getElementById(el).style.display = "none";
-	    }
-	    else {
+		}
+		else {
 		document.getElementById(el).style.display = "block";
-	    }
+		}
 	}
 </script>
 
 {exp:comment:entries}
 	{if is_ignored}
-	    <p><a href="#" onclick="showHideComment("{comment_id}")">View / Hide</a> comment from ignored member: {author}</p>
+		<p><a href="#" onclick="showHideComment("{comment_id}")">View / Hide</a> comment from ignored member: {author}</p>
 	{/if}
 
 <div id="{comment_id}" {if is_ignored}style="display: none;"{/if}>{comment}</div>
@@ -4223,9 +4290,9 @@ exclude_guests="yes"
 {subscriber_email}
 
 {if subscriber_is_member}
-     {subscriber_screen_name}
+	 {subscriber_screen_name}
 {if:else}
-     {encode="{subscriber_email}"}
+	 {encode="{subscriber_email}"}
 {/if}
 
 {subscriber_guest_total}
@@ -4813,28 +4880,28 @@ which="not moblog2|samsung"
 {exp:forum board="board_name"}
 
 {exp:channel:entries channel="news" orderby="date" sort="desc" limit="1" paginate="bottom"}
-    <h2>{title}</h2>
-    {summary}
-    {body}
+	<h2>{title}</h2>
+	{summary}
+	{body}
 
 {paginate}
 	<p>Page {current_page} of {total_pages} pages {pagination_links}</p>
-    {/paginate}
+	{/paginate}
 {/exp:channel:entries}
 
 {exp:comment:entries channel="news" sort="desc" limit="1" paginate="bottom"
 paginate="top" paginate="bottom"  paginate="both"  paginate="inline"
 }
-    {comment}
-    <p>By {name} on {comment_date format="%Y %m %d"}</p>
-    {paginate}
+	{comment}
+	<p>By {name} on {comment_date format="%Y %m %d"}</p>
+	{paginate}
 	{if previous_page}
-	    <a href="{auto_path}">Previous Page</a> &nbsp;
+		<a href="{auto_path}">Previous Page</a> &nbsp;
 	{/if}
 	{if next_page}
-	    <a href="{auto_path}">Next Page</a>
+		<a href="{auto_path}">Next Page</a>
 	{/if}
-    {/paginate}
+	{/paginate}
 {/exp:comment:entries}
 
 {pagination_links}
@@ -4909,11 +4976,11 @@ paginate_type="field"
    {body}
    {multi_field="page1|page2|page3|page4"}
    <div>
-      Last updated on {edit_date format="%M %d, %Y"} at
+	  Last updated on {edit_date format="%M %d, %Y"} at
 	 {edit_date format="%h:%i %A"}<br />
    </div>
    {paginate}
-      <p>Page {current_page} of {total_pages} pages for this article
+	  <p>Page {current_page} of {total_pages} pages for this article
 	 {pagination_links}</p>
    {/paginate}
 {/exp:channel:entries}
@@ -5294,7 +5361,7 @@ Posted {topic_relative_date} ago
 {exp:channel:entries channel="games"}
 	<div class="navigation"><ul>
 		{siblings channel="seasons" field="games"}
-			<li>{siblings:title}    - {siblings:home:title} vs {siblings:away:title}</li>
+			<li>{siblings:title}	- {siblings:home:title} vs {siblings:away:title}</li>
 		{/siblings}
 	</ul></div>
 {/exp:channel:entries}
@@ -5319,7 +5386,7 @@ ParentChannel
 	url_title
 	field1				  Text
 	field2				  Text
-	relationship_field	      Relationship (ChildChannel, Single)
+	relationship_field		  Relationship (ChildChannel, Single)
 
 ChildChannel
 	title
@@ -5339,7 +5406,7 @@ ParentChannel
 	url_title
 	field1				  Text
 	field2				  Text
-	relationship_field	      Relationship (ChildChannel, Multiple)
+	relationship_field		  Relationship (ChildChannel, Multiple)
 
 ChildChannel
 	title
@@ -5384,14 +5451,14 @@ ChildChannel
 {parents channel="parentChannel" field="relationship_field"}
 
 <table border="0" cellpadding="6" cellspacing="1" width="100%">
-    <tr>
+	<tr>
 	<th>{lang:title}</th>
 	<th>{lang:excerpt}</th>
 	<th>{lang:author}</th>
 	<th>{lang:date}</th>
 	<th>{lang:total_comments}</th>
 	<th>{lang:recent_comments}</th>
-    </tr>
+	</tr>
 
 {exp:search:search_results switch="resultRowOne|resultRowTwo"
 backspace="7"
@@ -5404,15 +5471,15 @@ backspace="7"
 	<td width="10%" valign="top">{entry_date format="%m/%d/%y"}</td>
 	<td width="10%" valign="top">{comment_total}</td>
 	<td width="10%" valign="top">{recent_comment_date format="%m/%d/%y"}</td>
-    </tr>
+	</tr>
 
 {if count == total_results}
 	</table>
-    {/if}
+	{/if}
 
 {paginate}
 	<p>Page {current_page} of {total_pages} pages {pagination_links}</p>
-    {/paginate}
+	{/paginate}
 
 {/exp:search:search_results}
 
@@ -5663,7 +5730,7 @@ form_id="tellafriend_form"}
 
 {member_name}
 
-{title}     {permalink}     {author}     {body}     et cetera...
+{title}	 {permalink}	 {author}	 {body}	 et cetera...
 
 <input type="text" name="captcha" maxlength="20" />
 
@@ -5691,7 +5758,7 @@ form_id="tellafriend_form"}
 	<p>{body}</p>
 {/exp:channel:entries}
 
-{if last_segment == "joe"}     Hey Joe, where you goin" with that? {/if}
+{if last_segment == "joe"}	 Hey Joe, where you goin" with that? {/if}
 
 Hey {last_segment}, where you goin" with that?
 
@@ -6202,13 +6269,13 @@ Revised: {revision_date format="%D, %F %d, %Y - %g:%i:%s"}
 
 Notes:&nbsp; <input class="input" name="revision_notes" id="revision_notes" value="{revision_notes}" type="text" size="50" maxlength="80" />
 
-<input name="submit" class="submit" type="submit" value="Submit" onclick="is_preview = false;" />     <input name="preview" class="submit" type="submit" value="Preview" onclick="is_preview = true;" />
+<input name="submit" class="submit" type="submit" value="Submit" onclick="is_preview = false;" />	 <input name="preview" class="submit" type="submit" value="Preview" onclick="is_preview = true;" />
 
 /* ---------------------------------------- /*  Template - Special Page: Associated Pages /* ----------------------------------------*/  function wiki_special_associated_pages() {   ob_start();    ?>
 {wiki:associated_pages}
  {if no_results} <h3>No Articles Link to {article_title}</h3> {/if}  {header}<h3>Articles that link to {article_title}</h3> <p>The following pages link to <a href="{path:view_orig_article}">{article_title}</a>:</p> <ul> {/header}  <li><a href="{path:view_article}">{title}</a></li>  {footer}</ul>{/footer}
  {/wiki:associated_pages}
-    <?php    $buffer = ob_get_contents();   ob_end_clean();    return $buffer; } /* END */  /** Variables List for wiki_special_associated_articles():  Along with the variables from wiki_page(), this template also has:  TAG VARIABLES: {wiki:associated_articles}  - Used for displaying list of recent changes   --- SINGLE VARIABLES:     {title}              - Page Title     {path:view_article}        - Link to View Article     {article_title}          - Page Title of the originating article     {path:view_orig_article}    - Link to view the originating article     {count}              - "count" of the current revision being displayed     {switch="one|two|three"}    - Rotate between any number of values, separated by a pipe symbol   --- PAIR VARIABLES:     {header}{/header}        - Content to go before this tag's content     {footer}{/footer}        - Content to go after this tag's content   --- CONDITIONAL VARIABLES:     {if no_results}          -- Content to display if there are no associated articles  */
+	<?php    $buffer = ob_get_contents();   ob_end_clean();    return $buffer; } /* END */  /** Variables List for wiki_special_associated_articles():  Along with the variables from wiki_page(), this template also has:  TAG VARIABLES: {wiki:associated_articles}  - Used for displaying list of recent changes   --- SINGLE VARIABLES:     {title}              - Page Title     {path:view_article}        - Link to View Article     {article_title}          - Page Title of the originating article     {path:view_orig_article}    - Link to view the originating article     {count}              - "count" of the current revision being displayed     {switch="one|two|three"}    - Rotate between any number of values, separated by a pipe symbol   --- PAIR VARIABLES:     {header}{/header}        - Content to go before this tag's content     {footer}{/footer}        - Content to go after this tag's content   --- CONDITIONAL VARIABLES:     {if no_results}          -- Content to display if there are no associated articles  */
 
 {if article}<li><a href="{path:wiki_home}{special_namespace}:Associated_Pages/{url_title}/" title="What Links Here">What Links Here</a></li>{/if}
 
@@ -6441,7 +6508,7 @@ Notes:&nbsp; <input class="input" name="revision_notes" id="revision_notes" valu
 {exp:channel:entries channel="games"}
 	<div class="navigation"><ul>
 		{siblings channel="seasons" field="games"}
-			<li>{siblings:title}    - {siblings:home:title} vs {siblings:away:title}</li>
+			<li>{siblings:title}	- {siblings:home:title} vs {siblings:away:title}</li>
 		{/siblings}
 	</ul></div>
 {/exp:channel:entries}
