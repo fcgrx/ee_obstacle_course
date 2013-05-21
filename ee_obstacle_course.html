@@ -69,12 +69,6 @@ Four types of date formatting:
 	{gmt_entry_date format="%Y"}
 	{if gmt_entry_date == current_time}
 
-Deprecated tags:
-
-	{exp:channel:entry_form}
-	{/exp:channel:entry_form}
-	{display_custom_fields}
-
 Comment tags:
 
 	{!-- valid --}
@@ -107,18 +101,43 @@ EE variables, punctuation, operators:
 
 EE core addons:
 
-	{exp:channel:entries channel="news" orderby="date" sort="desc" limit="1" paginate="bottom" disable="trackbacks|pagination"
-	search:my_field="foo"}
-	{/exp:channel:entries}
+	{exp:channel:calendar switch="calendarToday|calendarCell"}
 	{exp:channel:categories style="linear" backspace="5" category_group="not 1|2|4" channel="channel_name" class="my_custom_class" disable="category_fields" id="my_custom_id" parent_only="yes" restrict_channel="no" show="not 3|8" show_empty="no" show_expired_entries="yes" show_future_entries="yes" status="not submitted|processing|closed" style="nested"}
-	{exp:channel:category_heading}
-	{exp:channel:entries channel="personnel"}
+	{exp:channel:category_archive channel="default_site" style="linear"}
+	{exp:channel:category_heading channel=""}
+	{exp:channel:entries channel="bands" limit="10" sort="desc" start_on="" show_future_entries="yes" dynamic_start="yes" track_views="one" paginate="bottom" orderby="date" sort="desc" search:my_field="foo" title="Spring 2013" url-title="winter-2013" disable="categories|custom_fields|member_data|pagination"}
+	{exp:channel:entry_form}
 	{exp:channel:info channel="news"}
+	{exp:channel:month_links}
+	{exp:channel:next_entry}
+	{exp:channel:prev_entry}
+	{exp:comment:ajax_edit_url}
+	{exp:comment:edit_comment_script}
+	{exp:comment:entries sort="desc" orderby="date" limit="10" dynamic="no"}
 	{exp:comment:entries}
+	{exp:comment:form}
+	{exp:comment:notification_links}
+	{exp:comment:preview}
+	{exp:comment:subscriber_list}
+	{exp:cookie_consent:message}
 	{exp:email:contact_form user_recipients="no" recipients="admin@example.com" charset="utf-8"}
-	{exp:email:tell_a_friend charset="utf-8" allow_html="<p>,<a>"
+	{exp:email:contact_form}  {/exp:email:contact_form}
+	{exp:email:tell_a_friend charset="utf-8" allow_html="<p>,<a>"} {/exp:email:tell_a_friend}
+	{exp:emoticon columns="4"}
+	{exp:file:entries}{/exp:file:entries}
 	{exp:forum board="board_name"}
+	{exp:forum:forum_helper orderby="post_date" sort="desc" limit="50"}
+	{exp:forum:forum_helper}
+	{exp:forum:topic_titles}
 	{exp:ip_to_nation:world_flags image_url="http://example.com/images/world_flags/"}
+	{exp:jquery:output_javascript effect="slide" file="foo" plugin="corner" ui="accordion"}
+	{exp:jquery:script_src effect="slide" file="foo" plugin="corner" ui="accordion"}
+	{exp:jquery:script_tag effect="slide" file="foo" plugin="corner" ui="accordion"}
+	{exp:magpie url="http://some-site.com" limit="15" refresh="720" parse="inward"}
+	{exp:mailinglist:form}
+	{exp:member:custom_profile_data}
+	{exp:member:ignore_list}
+	{exp:member:login_form}
 	{exp:jquery:script_tag}
 	{exp:member:ignore_list}
 	{exp:moblog:check silent="yes" which="cellphone"}
@@ -128,10 +147,37 @@ EE core addons:
 	{exp:search:search_results switch="resultRowOne|resultRowTwo"}
 	{exp:stats channel="news|sports"}
 	{exp:xml_encode}
-	{wiki:associated_pages}{/wiki:associated_pages}
+	{exp:moblog:check silent="yes" which="cellphone"}
+	{exp:pages:load_site_pages site="default_site|corporate_site"}
+	{exp:query limit="5" paginate="top" sql="SELECT title,entry_date FROM exp_channel_titles ORDER BY entry_date DESC"}
+	{exp:query limit="5" sql="SELECT title,entry_date FROM exp_channel_titles ORDER BY entry_date DESC"}
+	{exp:query sql="SELECT screen_name FROM exp_members WHERE group_id = "6"" backspace="2"}
+	{exp:referrer limit="50" popup="yes"}
+	{exp:rss:feed channel="default_site" debug="yes"}
+	{exp:safecracker channel="channel_name" return="channel_name/edit/ENTRY_ID" entry_id=""}
+	{exp:safecracker channel="products" return="safecracker/ENTRY_ID" entry_id="" json="yes"}
+	{exp:search:advanced_form}
+	{exp:search:keywords}
+	{exp:search:search_results backspace="7"}
+	{exp:search:search_results switch="resultRowOne|resultRowTwo"}
+	{exp:search:search_results}
+	{exp:search:simple_form}
+	{exp:search:total_results}
+	{exp:simple_commerce:purchase}
+	{exp:stats channel="news|sports"}
+	{exp:updated_sites:pings which="default" limit="20"}
+	{exp:updated_sites:pings}
+	{exp:wiki base_path="Template_Group/index" wiki="wiki_short_name" theme="default"}
+	{exp:wiki base_path="wiki/index" wiki="default_wiki" theme="default"}
+	{exp:wiki base_path="wiki/index"}
+	{exp:wiki profile_path="forums"}
+	{exp:wiki profile_path="site/my_forum"}
+	{exp:wiki theme="default"}
+	{exp:wiki wiki="default_wiki"}
+	{exp:xml_encode}
+	{wiki:associated_pages}
 	{wiki:custom_namespaces_list}
-recipients="admin@example.com,ceo@example.com,president@example.com" redirect="none" replyto="yes"
-return="http://example.com/index.php|Home Page" status="not submitted|processing|closed" channel="news" form_class="tellafriend_form" form_id="tellafriend_form"}
+	{wiki:title_list}{/wiki:title_list}
 
 EE addons not shipped with core:
 
@@ -139,8 +185,6 @@ EE addons not shipped with core:
 	{/exp:my_plugin}
 	{exp:word_limit total="35"}
 	{/exp:word_limit}
-	{exp:magpie url="http://some-site.com" limit="15" refresh="720" parse="inward"}
-	{/exp:magpie}
 
 Valid conditionals:
 
@@ -301,6 +345,13 @@ Valid conditionals:
 	{if:else}
 	{/if}
 
+User-defined fields and conditionals:
+
+	{if your_field_type}
+	{if embed:your_dog_name == "Shadow"}
+	{embed:_your_dog_name}
+	{your_snippet}
+
 Deprecated conditionals:
 
 	{if allow_localization}
@@ -310,12 +361,11 @@ Deprecated conditionals:
 	{if ignore}
 	{if attachments}
 
-User-defined fields and conditionals:
+Deprecated tags:
 
-	{if your_field_type}
-	{if embed:your_dog_name == "Shadow"}
-	{embed:_your_dog_name}
-	{your_snippet}
+	{exp:channel:entry_form}
+	{/exp:channel:entry_form}
+	{display_custom_fields}
 
 Variable pairs:
 
@@ -334,8 +384,6 @@ Variable pairs:
 	{category_description}{/categories}
 	{category_menu} Categories {select_options}  {/category_menu}
 	{category_menu}{/category_menu}
-	{category}3,6{/category}
-	{category}3,News,7{/category}
 	{custom_fields}{/custom_fields}
 	{date_footer display="daily"} That's all from today! {/date_footer}
 	{date_footer}{/date_footer}
@@ -346,18 +394,13 @@ Variable pairs:
 	{entries}{/entries}
 	{entry_titles} {title} {/entry_titles}
 	{entry_titles}{/entry_titles}
-	{entry_title}My Unique Title{/entry_title}
-	{entry_title}{/entry_title}
 	{field name="body" format="xhtml"} {text} {/field}
 	{field name="body_image" format="none"} {images} {/images} {/field}
 	{field name="extended" format="xhtml"} {text} {/field}
 	{field_errors}{/field_errors}
 	{field_errors}{error}{/field_errors}
 	{field}{/field}
-	{file_archive}yes{/file_archive}
-	{file_archive}{/file_archive}
 	{files match="movie|files"} View the presentation. {/files}
-	{file}{/custom_fields}
 	{first_page}{/first_page}
 	{footer} content after listing articles. {/footer}
 	{footer} content after listing subcategories. {/footer}
@@ -396,9 +439,6 @@ Variable pairs:
 	{ping_servers} Ping Servers {ping_row} {ping_server_name} {/ping_row} {/ping_servers}
 	{preview} {title} {body} {/preview}
 	{previous_page}{/previous_page}
-	{relationship_field:parents}{/relationship_field:parents}
-	{relationship_field:siblings}{/relationship_field:siblings}
-	{relationship_field}{/relationship_field}
 	{row_blank}&nbsp;{/row_blank}
 	{row_column} {title} {/row_column}
 	{row_column}{/row_column}
@@ -414,7 +454,6 @@ Variable pairs:
 	{status}pending{/status}
 	{sticky}yes{/sticky}
 	{view_cart_button}View Cart{/view_cart_button}
-	{wiki:title_list}{/wiki:title_list}
 	{year_heading}{/year_heading} {year_heading}
 
 Global variables:
@@ -530,7 +569,9 @@ Moblog tags (not valid in EE templates, probably should not be highlighted):
 	{field:entry_body}food_images{/field:entry_body}
 	{field:location format="none"}Train Station{/field:location}
 	{field:summary}This is a summary.{/field:summary}
-
+	{category}3,News,7{/category}
+	{file_archive}yes{/file_archive}
+	{entry_title}My Unique Title{/entry_title}
 
 ----------------------------------------
 All ExpressionEngine tags and keywords:
@@ -691,7 +732,6 @@ All ExpressionEngine tags and keywords:
 {entry_id}
 {entry_site_id}
 {entry_titles}{/entry_titles} {entry_titles}
-{entry_title}{/entry_title} {entry_title}
 {error:custom_field}
 {error_message}
 {error}
@@ -699,7 +739,6 @@ All ExpressionEngine tags and keywords:
 {expiration_date}
 {extended_description}
 {extension}
-{field:custom_field}{/field:custom_field} {field:custom_field}
 {field_data}
 {field_errors:count}
 {field_errors}{/field_errors} {field_errors}
@@ -708,7 +747,6 @@ All ExpressionEngine tags and keywords:
 {field_label}
 {field_name}
 {field}{/field} {field}
-{file_archive}{/file_archive} {file_archive}
 {file_id}
 {file_namespace}
 {file_name}
@@ -969,8 +1007,6 @@ All ExpressionEngine tags and keywords:
 {ref_from}
 {ref_ip}
 {ref_to}
-{relationship_field:}
-{relationship_field}{/relationship_field} {relationship_field}
 {relationship}
 {relative_date}
 {relative_url}
