@@ -20,7 +20,9 @@ Nested brackets:
 
 	{encode="{webmaster_email}" title="Contact Us"}
 	{template_edit_date format="{DATE_ATOM}"}
-	{exp:channel:entries channel="blog" {if embed:entry_id}entry_id="{embed:entry_id}"{/if}}
+	{exp:channel:entries channel="blog"
+		{if embed:entry_id}entry_id="{embed:entry_id}"{/if}
+	}
 	{/exp:channel:entries}
 
 Built-in and other addons:
@@ -37,15 +39,34 @@ Three uses of switch:
 	{switch="one|two"}
 	{switch}
 
-Various kinds of tags with required parameters:
+Four uses of site_name:
 
-	{preload_replace} {!-- not valid --}
-	{preload_replace:foo} {!-- not valid --}
+	{!-- {site_name} --}
+	{if site_name}
+		site_name == {site_name}
+	{/if}
+
+Invalid tags (due to missing or malformed required parameters) which should not be highlighted as valid:
+
+	{embed}
+	{embed=}
+	{encode=}
+	{preload_replace}
+	{preload_replace:foo}
 	{preload_replace:foo=}
+	{stylesheet=
+	'template_group/css_template'}
+
+Valid tags with required parameters:
+
 	{preload_replace:foo='foo'}
 	{preload_replace:foo="foo"}
 	{preload_replace:foo='foo bar'}
 	{preload_replace:foo="foo bar"}
+	{stylesheet='template_group/css_template'}
+	{embed=blog/index}
+	{encode="you@example.com" {!-- comment--} title="Email Me!"}
+	{redirect='news/local' status_code="301"}
 
 Global variable with and without optional parameters:
 
@@ -55,8 +76,8 @@ Global variable with and without optional parameters:
 
 Various valid uses of "path":
 
-	{path}
-	{path=}
+	{path} is a file module variable
+	{path=} is a global variable
 	{path=site}
 	{path=site/index}
 	{path='site'}
@@ -136,6 +157,18 @@ Nesting EE tags inside jQuery (and highlighting jQuery):
 			$('#field').addClass('f{!-- COMMENT --}oo');
 		{/if}
 	</script>
+
+Nesting EE tags inside CSS style block:
+
+	<style>
+		{!-- comment --}
+		.my_class { background:#fff; content:{site_name}; }
+		{!-- .unwanted_class {background:green;} --}
+		body{ background:{!-- green --} blue;}
+		{if logged_in}
+			html{ {if group_id == 1}background:yellow;{/if} }
+		{/if}
+	</style>
 
 EE variables, punctuation, operators:
 
